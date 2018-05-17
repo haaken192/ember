@@ -28,17 +28,11 @@ import (
 	"sync"
 	"syscall"
 
+	"github.com/juju/errors"
 	"github.com/sirupsen/logrus"
 
-	"github.com/haakenlabs/arc/system/asset"
-	"github.com/haakenlabs/arc/system/asset/font"
-	"github.com/haakenlabs/arc/system/asset/mesh"
-	"github.com/haakenlabs/arc/system/asset/shader"
-	"github.com/haakenlabs/arc/system/asset/skybox"
-	"github.com/haakenlabs/arc/system/asset/texture"
 	"github.com/haakenlabs/ember/core"
 	"github.com/haakenlabs/ember/gfx"
-	"github.com/juju/errors"
 )
 
 const (
@@ -218,11 +212,11 @@ func NewApp(renderer gfx.Renderer) *App {
 	a.RegisterSystem(core.NewTimeSystem())
 	a.RegisterSystem(core.NewSceneSystem())
 
-	asset.RegisterHandler(texture.NewHandler())
-	asset.RegisterHandler(shader.NewHandler())
-	asset.RegisterHandler(mesh.NewHandler())
-	asset.RegisterHandler(font.NewHandler())
-	asset.RegisterHandler(skybox.NewHandler())
+	//asset.RegisterHandler(texture.NewHandler())
+	//asset.RegisterHandler(shader.NewHandler())
+	//asset.RegisterHandler(mesh.NewHandler())
+	//asset.RegisterHandler(font.NewHandler())
+	//asset.RegisterHandler(skybox.NewHandler())
 
 	return a
 }

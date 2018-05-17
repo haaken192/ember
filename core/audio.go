@@ -27,7 +27,8 @@ import (
 
 	"github.com/faiface/beep"
 	"github.com/faiface/beep/speaker"
-	"github.com/haakenlabs/arc/pkg/math"
+
+	"github.com/haakenlabs/ember/pkg/math"
 )
 
 var _ System = &AudioSystem{}

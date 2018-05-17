@@ -25,7 +25,7 @@ package core
 import (
 	"github.com/spf13/viper"
 
-	"github.com/haakenlabs/arc/pkg/math"
+	"github.com/haakenlabs/ember/pkg/math"
 )
 
 const (

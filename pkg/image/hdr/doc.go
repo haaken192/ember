@@ -20,4 +20,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+// Package hdr implements an image.Image-compliant reader for the Radiance HDR
+// image format.
 package hdr

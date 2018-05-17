@@ -31,6 +31,8 @@ import (
 	"sync"
 
 	"github.com/sirupsen/logrus"
+
+	"github.com/haakenlabs/ember/internal/builtin"
 )
 
 var assetInst *AssetSystem

@@ -24,7 +24,7 @@ package scene
 
 import (
 	"github.com/haakenlabs/ember/core"
-	"github.com/haakenlabs/ember/graphics"
+	"github.com/haakenlabs/ember/gfx"
 	"github.com/haakenlabs/ember/system/instance"
 )
 
@@ -46,30 +46,30 @@ const (
 const MaterialMaxTextures = 16
 
 type MaterialData struct {
-	Textures         map[string]string                  `json:"textures"`
-	ShaderProperties map[string]graphics.ShaderProperty `json:"shader_properties"`
-	Shader           string                             `json:"shader"`
+	Textures         map[string]string             `json:"textures"`
+	ShaderProperties map[string]gfx.ShaderProperty `json:"shader_properties"`
+	Shader           string                        `json:"shader"`
 }
 
 type Material struct {
 	core.BaseObject
 
-	textures         [MaterialMaxTextures]graphics.Texture
+	textures         [MaterialMaxTextures]gfx.Texture
 	shaderProperties map[string]interface{}
-	shader           *graphics.Shader
+	shader           gfx.Shader
 }
 
-func (m *Material) SetTexture(id MaterialTexture, texture graphics.Texture) {
+func (m *Material) SetTexture(id MaterialTexture, texture gfx.Texture) {
 	if id < MaterialMaxTextures {
 		m.textures[id] = texture
 	}
 }
 
-func (m *Material) SetShader(shader *graphics.Shader) {
+func (m *Material) SetShader(shader gfx.Shader) {
 	m.shader = shader
 }
 
-func (m *Material) Texture(id MaterialTexture) graphics.Texture {
+func (m *Material) Texture(id MaterialTexture) gfx.Texture {
 	if id >= MaterialMaxTextures {
 		return nil
 	}
@@ -77,7 +77,7 @@ func (m *Material) Texture(id MaterialTexture) graphics.Texture {
 	return m.textures[id]
 }
 
-func (m *Material) Shader() *graphics.Shader {
+func (m *Material) Shader() gfx.Shader {
 	return m.shader
 }
 

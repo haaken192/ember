@@ -73,6 +73,10 @@ type Shader interface {
 
 	// Compile compiles and links the shader code data for this shader.
 	Compile() error
+
+	SetSubroutinue(ShaderComponent, string)
+
+	SetUniform(string, interface{})
 }
 
 type ShaderProperty struct {
