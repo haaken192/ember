@@ -27,8 +27,8 @@ import (
 
 	"github.com/golang/freetype/truetype"
 
-	"github.com/haakenlabs/arc/graphics"
 	"github.com/haakenlabs/ember/core"
+	"github.com/haakenlabs/ember/gfx"
 	"github.com/haakenlabs/ember/system/asset"
 )
 
@@ -55,13 +55,13 @@ func (h *Handler) Load(r *core.Resource) error {
 		return err
 	}
 
-	f := graphics.NewFont(ttf, graphics.ASCII)
+	f := gfx.NewFont(ttf, gfx.ASCII)
 	f.SetName(name)
 
 	return h.Add(name, f)
 }
 
-func (h *Handler) Add(name string, font *graphics.Font) error {
+func (h *Handler) Add(name string, font *gfx.Font) error {
 	if _, dup := h.Items[name]; dup {
 		return core.ErrAssetExists(name)
 	}
@@ -76,13 +76,13 @@ func (h *Handler) Add(name string, font *graphics.Font) error {
 }
 
 // Get gets an asset by name.
-func (h *Handler) Get(name string) (*graphics.Font, error) {
+func (h *Handler) Get(name string) (*gfx.Font, error) {
 	a, err := h.GetAsset(name)
 	if err != nil {
 		return nil, err
 	}
 
-	a2, ok := a.(*graphics.Font)
+	a2, ok := a.(*gfx.Font)
 	if !ok {
 		return nil, core.ErrAssetType(name)
 	}
@@ -91,7 +91,7 @@ func (h *Handler) Get(name string) (*graphics.Font, error) {
 }
 
 // MustGet is like GetAsset, but panics if an error occurs.
-func (h *Handler) MustGet(name string) *graphics.Font {
+func (h *Handler) MustGet(name string) *gfx.Font {
 	a, err := h.Get(name)
 	if err != nil {
 		panic(err)
@@ -112,11 +112,11 @@ func NewHandler() *Handler {
 	return h
 }
 
-func Get(name string) (*graphics.Font, error) {
+func Get(name string) (*gfx.Font, error) {
 	return mustHandler().Get(name)
 }
 
-func MustGet(name string) *graphics.Font {
+func MustGet(name string) *gfx.Font {
 	return mustHandler().MustGet(name)
 }
 

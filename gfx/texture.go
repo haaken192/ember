@@ -84,6 +84,7 @@ type Texture interface {
 	Sizable
 
 	Type() TextureType
+	Format() TextureFormat
 	SetMagFilter(int32)
 	SetMinFilter(int32)
 	FilterMag() int32

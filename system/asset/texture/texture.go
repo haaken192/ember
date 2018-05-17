@@ -29,17 +29,18 @@ import (
 	"image/draw"
 	"sync"
 
+	"github.com/juju/errors"
+
 	"github.com/haakenlabs/ember/core"
 	"github.com/haakenlabs/ember/gfx"
 	"github.com/haakenlabs/ember/pkg/math"
 	"github.com/haakenlabs/ember/system/asset"
+	"github.com/haakenlabs/ember/system/renderer"
 
 	_ "image/jpeg"
 	_ "image/png"
 
-	_ "github.com/haakenlabs/arc/pkg/image/hdr"
-	"github.com/haakenlabs/ember/system/renderer"
-	"github.com/juju/errors"
+	_ "github.com/haakenlabs/ember/pkg/image/hdr"
 )
 
 const (

@@ -35,17 +35,17 @@ import (
 	"github.com/go-gl/mathgl/mgl32"
 	"github.com/sirupsen/logrus"
 
-	"github.com/haakenlabs/arc/graphics"
 	"github.com/haakenlabs/ember/core"
 	"github.com/haakenlabs/ember/gfx"
 	"github.com/haakenlabs/ember/pkg/image/hdr"
 	"github.com/haakenlabs/ember/pkg/math"
-	"github.com/haakenlabs/ember/scene"
 	"github.com/haakenlabs/ember/system/asset"
 	"github.com/haakenlabs/ember/system/asset/shader"
 
 	_ "image/jpeg"
 	_ "image/png"
+
+	"github.com/haakenlabs/ember/system/renderer"
 )
 
 const (
@@ -110,7 +110,7 @@ func (h *Handler) Load(r *core.Resource) error {
 	return nil
 }
 
-func (h *Handler) loadMap(m *Metadata, dir string) (skybox *scene.Skybox, err error) {
+func (h *Handler) loadMap(m *Metadata, dir string) (skybox *gfx.Skybox, err error) {
 	var specR, irrdR *core.Resource
 	var specTex, irrdTex gfx.Texture
 	var radiance, specular, irradiance gfx.Texture
@@ -166,7 +166,7 @@ func (h *Handler) loadMap(m *Metadata, dir string) (skybox *scene.Skybox, err er
 		}
 	}
 
-	fbo := graphics.NewFramebufferRaw()
+	fbo := renderer.MakeFramebuffer(math.IVec2{})
 	defer fbo.Dealloc()
 
 	radiance, err = makeCubemap(radiTex, fbo, radiTex.Size().Y()/2)
@@ -192,19 +192,19 @@ func (h *Handler) loadMap(m *Metadata, dir string) (skybox *scene.Skybox, err er
 		return nil, err
 	}
 
-	skybox = scene.NewSkybox(radiance, specular, irradiance)
+	skybox = gfx.NewSkybox(radiance, specular, irradiance)
 
 	return skybox, nil
 }
 
 // Get gets an asset by name.
-func (h *Handler) Get(name string) (*scene.Skybox, error) {
+func (h *Handler) Get(name string) (*gfx.Skybox, error) {
 	a, err := h.GetAsset(name)
 	if err != nil {
 		return nil, err
 	}
 
-	a2, ok := a.(*scene.Skybox)
+	a2, ok := a.(*gfx.Skybox)
 	if !ok {
 		return nil, core.ErrAssetType(name)
 	}
@@ -213,7 +213,7 @@ func (h *Handler) Get(name string) (*scene.Skybox, error) {
 }
 
 // MustGet is like GetAsset, but panics if an error occurs.
-func (h *Handler) MustGet(name string) *scene.Skybox {
+func (h *Handler) MustGet(name string) *gfx.Skybox {
 	a, err := h.Get(name)
 	if err != nil {
 		panic(err)
@@ -232,11 +232,15 @@ func loadImage(r *core.Resource) (img image.Image) {
 	return img
 }
 
-func loadTexture(img image.Image) (tex *graphics.Texture2D, err error) {
+func loadTexture(img image.Image) (tex gfx.Texture, err error) {
 	x := int32(img.Bounds().Dx())
 	y := int32(img.Bounds().Dy())
 
-	tex = graphics.NewTexture2D(math.IVec2{x, y}, graphics.TextureFormatDefaultColor)
+	tex = renderer.MakeTexture(&gfx.TextureConfig{
+		Type:   gfx.Texture2D,
+		Size:   math.IVec2{x, y},
+		Format: gfx.TextureFormatDefaultColor,
+	})
 
 	switch img.ColorModel() {
 	case color.CMYKModel:
@@ -244,32 +248,32 @@ func loadTexture(img image.Image) (tex *graphics.Texture2D, err error) {
 	case color.YCbCrModel:
 		rgba := image.NewRGBA(img.Bounds())
 		draw.Draw(rgba, rgba.Bounds(), img, image.Point{}, draw.Src)
-		tex.SetTexFormat(graphics.TextureFormatRGBA8)
+		tex.SetFormat(gfx.TextureFormatRGBA8)
 		tex.SetData(rgba.Pix)
 	case color.RGBA64Model:
 		rgba := image.NewRGBA64(img.Bounds())
 		draw.Draw(rgba, rgba.Bounds(), img, image.Point{}, draw.Src)
-		tex.SetTexFormat(graphics.TextureFormatRGBA16)
+		tex.SetFormat(gfx.TextureFormatRGBA16)
 		tex.SetData(rgba.Pix)
 	case color.RGBAModel:
 		rgba := image.NewRGBA(img.Bounds())
 		draw.Draw(rgba, rgba.Bounds(), img, image.Point{}, draw.Src)
-		tex.SetTexFormat(graphics.TextureFormatRGBA8)
+		tex.SetFormat(gfx.TextureFormatRGBA8)
 		tex.SetData(rgba.Pix)
 	case color.NRGBA64Model:
 		rgba := image.NewNRGBA64(img.Bounds())
 		draw.Draw(rgba, rgba.Bounds(), img, image.Point{}, draw.Src)
-		tex.SetTexFormat(graphics.TextureFormatRGBA16)
+		tex.SetFormat(gfx.TextureFormatRGBA16)
 		tex.SetData(rgba.Pix)
 	case color.NRGBAModel:
 		rgba := image.NewNRGBA(img.Bounds())
 		draw.Draw(rgba, rgba.Bounds(), img, image.Point{}, draw.Src)
-		tex.SetTexFormat(graphics.TextureFormatRGBA8)
+		tex.SetFormat(gfx.TextureFormatRGBA8)
 		tex.SetData(rgba.Pix)
 	case hdr.RGB96Model:
 		rgba := hdr.NewRGB96(img.Bounds())
 		draw.Draw(rgba, rgba.Bounds(), img, image.Point{}, draw.Src)
-		tex.SetTexFormat(graphics.TextureFormatRGB32)
+		tex.SetFormat(gfx.TextureFormatRGB32)
 
 		var data []float32
 		for y := 0; y < rgba.Rect.Dy(); y++ {
@@ -293,16 +297,21 @@ func loadTexture(img image.Image) (tex *graphics.Texture2D, err error) {
 	return tex, err
 }
 
-func makeCubemap(tex *graphics.Texture2D, fbo *graphics.Framebuffer, faceSize int32) (cubemap *graphics.TextureCubemap, err error) {
+func makeCubemap(tex gfx.Texture, fbo gfx.Framebuffer, faceSize int32) (cubemap gfx.Texture, err error) {
 	fbo.Bind()
 	fbo.SetSize(math.IVec2{faceSize, faceSize})
 
-	cubemap = graphics.NewTextureCubemap(math.IVec2{faceSize, faceSize}, tex.TexFormat())
+	cubemap = renderer.MakeTexture(&gfx.TextureConfig{
+		Type:   gfx.TextureCubemap,
+		Size:   math.IVec2{faceSize, faceSize},
+		Format: tex.Format(),
+	})
 	if err := cubemap.Alloc(); err != nil {
 		return nil, err
 	}
 
-	mesh := graphics.NewMeshQuadBack()
+	//mesh := graphics.NewMeshQuadBack()
+	mesh := renderer.MakeMesh()
 	mesh.Bind()
 
 	gl.Disable(gl.DEPTH_TEST)
@@ -311,9 +320,9 @@ func makeCubemap(tex *graphics.Texture2D, fbo *graphics.Framebuffer, faceSize in
 	s := shader.MustGet("utils/cubeconv")
 	s.Bind()
 	s.SetUniform("v_projection_matrix", mgl32.Perspective(math.Pi32/2.0, 1.0, 0.1, 2.0))
-	tex.ActivateTexture(gl.TEXTURE0)
+	tex.Activate(0)
 
-	fbo.ClearBuffers()
+	fbo.Clear()
 
 	for i := uint32(0); i < 6; i++ {
 		s.SetUniform("v_view_matrix", rotMatrices[i])
@@ -333,23 +342,23 @@ func makeCubemap(tex *graphics.Texture2D, fbo *graphics.Framebuffer, faceSize in
 	return
 }
 
-func generateSpecular(radiance *graphics.TextureCubemap, fbo *graphics.Framebuffer) (spec *graphics.TextureCubemap, err error) {
+func generateSpecular(radiance gfx.Texture, fbo gfx.Framebuffer) (spec gfx.Texture, err error) {
 	//return nil, ErrNotImplemented
 
 	return nil, nil
 }
 
-func generateIrradiance(radiance *graphics.TextureCubemap, fbo *graphics.Framebuffer) (irrd *graphics.TextureCubemap, err error) {
+func generateIrradiance(radiance gfx.Texture, fbo gfx.Framebuffer) (irrd gfx.Texture, err error) {
 	//return nil, ErrNotImplemented
 
 	return nil, nil
 }
 
-func Get(name string) (*scene.Skybox, error) {
+func Get(name string) (*gfx.Skybox, error) {
 	return mustHandler().Get(name)
 }
 
-func MustGet(name string) *scene.Skybox {
+func MustGet(name string) *gfx.Skybox {
 	return mustHandler().MustGet(name)
 }
 
