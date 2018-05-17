@@ -33,6 +33,12 @@ import (
 
 	"github.com/haakenlabs/ember/core"
 	"github.com/haakenlabs/ember/gfx"
+	"github.com/haakenlabs/ember/system/asset"
+	"github.com/haakenlabs/ember/system/asset/font"
+	"github.com/haakenlabs/ember/system/asset/mesh"
+	"github.com/haakenlabs/ember/system/asset/shader"
+	"github.com/haakenlabs/ember/system/asset/skybox"
+	"github.com/haakenlabs/ember/system/asset/texture"
 )
 
 const (
@@ -212,11 +218,11 @@ func NewApp(renderer gfx.Renderer) *App {
 	a.RegisterSystem(core.NewTimeSystem())
 	a.RegisterSystem(core.NewSceneSystem())
 
-	//asset.RegisterHandler(texture.NewHandler())
-	//asset.RegisterHandler(shader.NewHandler())
-	//asset.RegisterHandler(mesh.NewHandler())
-	//asset.RegisterHandler(font.NewHandler())
-	//asset.RegisterHandler(skybox.NewHandler())
+	asset.RegisterHandler(texture.NewHandler())
+	asset.RegisterHandler(shader.NewHandler())
+	asset.RegisterHandler(mesh.NewHandler())
+	asset.RegisterHandler(font.NewHandler())
+	asset.RegisterHandler(skybox.NewHandler())
 
 	return a
 }
