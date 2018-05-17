@@ -124,6 +124,16 @@ func (t *Texture) ID() int32 {
 	return 1
 }
 
+func (t *Texture) SetFormat(gfx.TextureFormat) {}
+
+func (t *Texture) SetData([]uint8) {}
+
+func (t *Texture) SetLayerData([]uint8, int32) {}
+
+func (t *Texture) SetHDRData([]float32) {}
+
+func (t *Texture) SetHDRLayerData([]float32, int32) {}
+
 func (r *Renderer) MakeTexture(cfg *gfx.TextureConfig) gfx.Texture {
 	return &Texture{
 		size:        cfg.Size,

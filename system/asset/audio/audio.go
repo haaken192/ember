@@ -20,23 +20,23 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-package shader
+package audio
 
 import (
-	"encoding/json"
-	"io/ioutil"
+	"fmt"
 	"path/filepath"
 	"sync"
 
+	"github.com/faiface/beep"
+	"github.com/faiface/beep/flac"
+	"github.com/faiface/beep/mp3"
+	"github.com/faiface/beep/wav"
+
 	"github.com/haakenlabs/ember/core"
-	"github.com/haakenlabs/ember/gfx"
 	"github.com/haakenlabs/ember/system/asset"
-	"github.com/haakenlabs/ember/system/renderer"
 )
 
-const (
-	AssetNameShader = "shader"
-)
+const AssetNameAudio = "audio"
 
 var _ core.AssetHandler = &Handler{}
 
@@ -44,71 +44,60 @@ type Handler struct {
 	core.BaseAssetHandler
 }
 
-type Metadata struct {
-	Name     string   `json:"name"`
-	Deferred bool     `json:"deferred"`
-	Files    []string `json:"files"`
-}
-
-// Load will load data from the reader.
 func (h *Handler) Load(r *core.Resource) error {
-	m := &Metadata{}
+	var streamer beep.Streamer
+	var format beep.Format
+	var err error
 
-	data, err := ioutil.ReadAll(r.Reader())
+	name := r.Base()
+	ext := filepath.Ext(name)
+
+	if _, dup := h.Items[name]; dup {
+		return core.ErrAssetExists(name)
+	}
+
+	switch ext {
+	case "mp3":
+		streamer, format, err = mp3.Decode(r.ReadCloser())
+	case "wav":
+		streamer, format, err = wav.Decode(r.ReadCloser())
+	case "flac":
+		streamer, format, err = flac.Decode(r.ReadCloser())
+	default:
+		return fmt.Errorf("unknown audio type: %s", ext)
+	}
+
 	if err != nil {
 		return err
 	}
 
-	if err := json.Unmarshal(data, m); err != nil {
-		return err
-	}
-	name := m.Name
-	if _, dup := h.Items[name]; dup {
-		return core.ErrAssetExists(name)
-	}
-
-	s := renderer.MakeShader(m.Deferred)
-
-	//s.SetName(m.Name)
-
-	// Populate shader data.
-	for i := range m.Files {
-		r, err := core.NewResource(filepath.Join(r.DirPrefix(), m.Files[i]))
-		if err != nil {
-			return err
-		}
-		if err := asset.ReadResource(r); err != nil {
-			return err
-		}
-
-		s.AddData(r.Bytes())
-	}
+	s := core.NewSound(streamer, format)
+	s.SetName(name)
 
 	return h.Add(name, s)
 }
 
-func (h *Handler) Add(name string, shader gfx.Shader) error {
+func (h *Handler) Add(name string, sound *core.Sound) error {
 	if _, dup := h.Items[name]; dup {
 		return core.ErrAssetExists(name)
 	}
 
-	if err := shader.Alloc(); err != nil {
+	if err := sound.Alloc(); err != nil {
 		return err
 	}
 
-	h.Items[name] = shader.ID()
+	h.Items[name] = sound.ID()
 
 	return nil
 }
 
-// Get gets an asset by name.
-func (h *Handler) Get(name string) (gfx.Shader, error) {
+func (h *Handler) Get(name string) (*core.Sound, error) {
 	a, err := h.GetAsset(name)
 	if err != nil {
 		return nil, err
 	}
 
-	a2, ok := a.(gfx.Shader)
+	a2, ok := a.(*core.Sound)
 	if !ok {
 		return nil, core.ErrAssetType(name)
 	}
@@ -116,8 +105,7 @@ func (h *Handler) Get(name string) (gfx.Shader, error) {
 	return a2, nil
 }
 
-// MustGet is like GetAsset, but panics if an error occurs.
-func (h *Handler) MustGet(name string) gfx.Shader {
+func (h *Handler) MustGet(name string) *core.Sound {
 	a, err := h.Get(name)
 	if err != nil {
 		panic(err)
@@ -127,7 +115,7 @@ func (h *Handler) MustGet(name string) gfx.Shader {
 }
 
 func (h *Handler) Name() string {
-	return AssetNameShader
+	return AssetNameAudio
 }
 
 func NewHandler() *Handler {
@@ -138,28 +126,16 @@ func NewHandler() *Handler {
 	return h
 }
 
-func NewShaderUtilsCopy() gfx.Shader {
-	return MustGet("utils/copy")
-}
-
-func NewShaderUtilsSkybox() gfx.Shader {
-	return MustGet("utils/skybox")
-}
-
-func DefaultShader() gfx.Shader {
-	return MustGet("standard")
-}
-
-func Get(name string) (gfx.Shader, error) {
+func Get(name string) (*core.Sound, error) {
 	return mustHandler().Get(name)
 }
 
-func MustGet(name string) gfx.Shader {
+func MustGet(name string) *core.Sound {
 	return mustHandler().MustGet(name)
 }
 
 func mustHandler() *Handler {
-	h, err := asset.GetHandler(AssetNameShader)
+	h, err := asset.GetHandler(AssetNameAudio)
 	if err != nil {
 		panic(err)
 	}

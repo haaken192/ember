@@ -20,43 +20,31 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-package renderer
+package gfx
 
-import (
-	"github.com/haakenlabs/ember/core"
-	"github.com/haakenlabs/ember/gfx"
-	"github.com/haakenlabs/ember/pkg/math"
-)
+import "github.com/go-gl/mathgl/mgl32"
 
-func Begin() {
-	core.GetWindowSystem().Renderer().Begin()
+type Vertex struct {
+	V mgl32.Vec3
+	N mgl32.Vec3
+	U mgl32.Vec2
 }
 
-func End() {
-	core.GetWindowSystem().Renderer().Begin()
-}
+type Mesh interface {
+	Allocater
+	Binder
+	Drawer
 
-func MakeShader(deferred bool) gfx.Shader {
-	return core.GetWindowSystem().Renderer().MakeShader(deferred)
-}
-
-func MakeTexture(cfg *gfx.TextureConfig) gfx.Texture {
-	return core.GetWindowSystem().Renderer().MakeTexture(cfg)
-
-}
-
-func MakeAttachment(cfg *gfx.AttachmentConfig) gfx.Attachment {
-	return core.GetWindowSystem().Renderer().MakeAttachment(cfg)
-}
-
-func MakeFramebuffer(size math.IVec2) gfx.Framebuffer {
-	return core.GetWindowSystem().Renderer().MakeFramebuffer(size)
-}
-
-func MakeGBuffer(size math.IVec2, depth gfx.Attachment, hdr bool) gfx.GBuffer {
-	return core.GetWindowSystem().Renderer().MakeGBuffer(size, depth, hdr)
-}
-
-func MakeMesh() gfx.Mesh {
-	return core.GetWindowSystem().Renderer().MakeMesh()
+	Clear()
+	Upload() error
+	Vertices() []mgl32.Vec3
+	Normals() []mgl32.Vec3
+	UVs() []mgl32.Vec2
+	Triangles() []uint32
+	Indexed() bool
+	ReversedWinding() bool
+	SetVertices(vertices []mgl32.Vec3)
+	SetNormals(normals []mgl32.Vec3)
+	SetUVs(uvs []mgl32.Vec2)
+	SetReversedWinding(reverse bool)
 }

@@ -261,6 +261,14 @@ func (t *BaseTexture) WrapT() int32 {
 	return t.wrapT
 }
 
+func (t *BaseTexture) SetData([]uint8) {}
+
+func (t *BaseTexture) SetLayerData([]uint8, int32) {}
+
+func (t *BaseTexture) SetHDRData([]float32) {}
+
+func (t *BaseTexture) SetHDRLayerData([]float32, int32) {}
+
 func TextureFormatToInternal(format gfx.TextureFormat) int32 {
 	switch format {
 	case gfx.TextureFormatR8:

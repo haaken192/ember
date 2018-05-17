@@ -101,6 +101,11 @@ type Texture interface {
 	GenerateMipmaps()
 	Layers() int32
 	SetLayers(int32)
+	SetFormat(TextureFormat)
+	SetData([]uint8)
+	SetLayerData([]uint8, int32)
+	SetHDRData([]float32)
+	SetHDRLayerData([]float32, int32)
 }
 
 type TextureConfig struct {

@@ -20,22 +20,20 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-package shader
+package font
 
 import (
-	"encoding/json"
-	"io/ioutil"
-	"path/filepath"
 	"sync"
 
+	"github.com/golang/freetype/truetype"
+
+	"github.com/haakenlabs/arc/graphics"
 	"github.com/haakenlabs/ember/core"
-	"github.com/haakenlabs/ember/gfx"
 	"github.com/haakenlabs/ember/system/asset"
-	"github.com/haakenlabs/ember/system/renderer"
 )
 
 const (
-	AssetNameShader = "shader"
+	AssetNameFont = "font"
 )
 
 var _ core.AssetHandler = &Handler{}
@@ -44,71 +42,47 @@ type Handler struct {
 	core.BaseAssetHandler
 }
 
-type Metadata struct {
-	Name     string   `json:"name"`
-	Deferred bool     `json:"deferred"`
-	Files    []string `json:"files"`
-}
-
 // Load will load data from the reader.
 func (h *Handler) Load(r *core.Resource) error {
-	m := &Metadata{}
+	name := r.Base()
 
-	data, err := ioutil.ReadAll(r.Reader())
+	if _, dup := h.Items[name]; dup {
+		return core.ErrAssetExists(name)
+	}
+
+	ttf, err := truetype.Parse(r.Bytes())
 	if err != nil {
 		return err
 	}
 
-	if err := json.Unmarshal(data, m); err != nil {
-		return err
-	}
-	name := m.Name
-	if _, dup := h.Items[name]; dup {
-		return core.ErrAssetExists(name)
-	}
+	f := graphics.NewFont(ttf, graphics.ASCII)
+	f.SetName(name)
 
-	s := renderer.MakeShader(m.Deferred)
-
-	//s.SetName(m.Name)
-
-	// Populate shader data.
-	for i := range m.Files {
-		r, err := core.NewResource(filepath.Join(r.DirPrefix(), m.Files[i]))
-		if err != nil {
-			return err
-		}
-		if err := asset.ReadResource(r); err != nil {
-			return err
-		}
-
-		s.AddData(r.Bytes())
-	}
-
-	return h.Add(name, s)
+	return h.Add(name, f)
 }
 
-func (h *Handler) Add(name string, shader gfx.Shader) error {
+func (h *Handler) Add(name string, font *graphics.Font) error {
 	if _, dup := h.Items[name]; dup {
 		return core.ErrAssetExists(name)
 	}
 
-	if err := shader.Alloc(); err != nil {
+	if err := font.Alloc(); err != nil {
 		return err
 	}
 
-	h.Items[name] = shader.ID()
+	h.Items[name] = font.ID()
 
 	return nil
 }
 
 // Get gets an asset by name.
-func (h *Handler) Get(name string) (gfx.Shader, error) {
+func (h *Handler) Get(name string) (*graphics.Font, error) {
 	a, err := h.GetAsset(name)
 	if err != nil {
 		return nil, err
 	}
 
-	a2, ok := a.(gfx.Shader)
+	a2, ok := a.(*graphics.Font)
 	if !ok {
 		return nil, core.ErrAssetType(name)
 	}
@@ -117,7 +91,7 @@ func (h *Handler) Get(name string) (gfx.Shader, error) {
 }
 
 // MustGet is like GetAsset, but panics if an error occurs.
-func (h *Handler) MustGet(name string) gfx.Shader {
+func (h *Handler) MustGet(name string) *graphics.Font {
 	a, err := h.Get(name)
 	if err != nil {
 		panic(err)
@@ -127,7 +101,7 @@ func (h *Handler) MustGet(name string) gfx.Shader {
 }
 
 func (h *Handler) Name() string {
-	return AssetNameShader
+	return AssetNameFont
 }
 
 func NewHandler() *Handler {
@@ -138,28 +112,16 @@ func NewHandler() *Handler {
 	return h
 }
 
-func NewShaderUtilsCopy() gfx.Shader {
-	return MustGet("utils/copy")
-}
-
-func NewShaderUtilsSkybox() gfx.Shader {
-	return MustGet("utils/skybox")
-}
-
-func DefaultShader() gfx.Shader {
-	return MustGet("standard")
-}
-
-func Get(name string) (gfx.Shader, error) {
+func Get(name string) (*graphics.Font, error) {
 	return mustHandler().Get(name)
 }
 
-func MustGet(name string) gfx.Shader {
+func MustGet(name string) *graphics.Font {
 	return mustHandler().MustGet(name)
 }
 
 func mustHandler() *Handler {
-	h, err := asset.GetHandler(AssetNameShader)
+	h, err := asset.GetHandler(AssetNameFont)
 	if err != nil {
 		panic(err)
 	}

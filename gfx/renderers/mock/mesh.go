@@ -20,43 +20,74 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-package renderer
+package mock
 
 import (
-	"github.com/haakenlabs/ember/core"
+	"github.com/go-gl/mathgl/mgl32"
 	"github.com/haakenlabs/ember/gfx"
-	"github.com/haakenlabs/ember/pkg/math"
+	"github.com/sirupsen/logrus"
 )
 
-func Begin() {
-	core.GetWindowSystem().Renderer().Begin()
+var _ gfx.Mesh = &Mesh{}
+
+type Mesh struct{}
+
+func (m *Mesh) Bind() {}
+
+func (m *Mesh) Unbind() {}
+
+func (m *Mesh) Reference() uint32 {
+	return 1
 }
 
-func End() {
-	core.GetWindowSystem().Renderer().Begin()
+func (m *Mesh) Alloc() error {
+	logrus.Info("alloc mock mesh")
+	return nil
 }
 
-func MakeShader(deferred bool) gfx.Shader {
-	return core.GetWindowSystem().Renderer().MakeShader(deferred)
+func (m *Mesh) Dealloc() {}
+
+func (m *Mesh) ID() int32 {}
+
+func (m *Mesh) Deferred() bool {
+	return true
 }
 
-func MakeTexture(cfg *gfx.TextureConfig) gfx.Texture {
-	return core.GetWindowSystem().Renderer().MakeTexture(cfg)
+func (m *Mesh) Draw() {}
 
+func (m *Mesh) Clear() {}
+
+func (m *Mesh) Upload() error {
+	return nil
 }
 
-func MakeAttachment(cfg *gfx.AttachmentConfig) gfx.Attachment {
-	return core.GetWindowSystem().Renderer().MakeAttachment(cfg)
+func (m *Mesh) Vertices() []mgl32.Vec3 {
+	return nil
 }
 
-func MakeFramebuffer(size math.IVec2) gfx.Framebuffer {
-	return core.GetWindowSystem().Renderer().MakeFramebuffer(size)
+func (m *Mesh) Normals() []mgl32.Vec3 {
+	return nil
 }
 
-func MakeGBuffer(size math.IVec2, depth gfx.Attachment, hdr bool) gfx.GBuffer {
-	return core.GetWindowSystem().Renderer().MakeGBuffer(size, depth, hdr)
+func (m *Mesh) UVs() []mgl32.Vec2 {
+	return nil
 }
 
-func MakeMesh() gfx.Mesh {
-	return core.GetWindowSystem().Renderer().MakeMesh()
+func (m *Mesh) Triangles() []uint32 {
+	return nil
 }
+
+func (m *Mesh) Indexed() bool {
+	return false
+}
+func (m *Mesh) ReversedWinding() bool {
+	return false
+}
+
+func (m *Mesh) SetVertices(vertices []mgl32.Vec3) {}
+
+func (m *Mesh) SetNormals(normals []mgl32.Vec3) {}
+
+func (m *Mesh) SetUVs(uvs []mgl32.Vec2) {}
+
+func (m *Mesh) SetReversedWinding(reverse bool) {}

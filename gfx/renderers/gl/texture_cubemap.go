@@ -59,20 +59,20 @@ func NewTextureCubemap(cfg *gfx.TextureConfig) *TextureCubemap {
 	return t
 }
 
-func (t *TextureCubemap) SetData(data []byte, offset int) {
-	if offset > 5 {
+func (t *TextureCubemap) SetLayerData(data []byte, layer int32) {
+	if layer > 5 {
 		return
 	}
 
-	t.data[offset] = data
+	t.data[layer] = data
 }
 
-func (t *TextureCubemap) SetHDRData(data []float32, offset int) {
-	if offset > 5 {
+func (t *TextureCubemap) SetHDRLayerData(data []float32, layer int32) {
+	if layer > 5 {
 		return
 	}
 
-	t.hdrData[offset] = data
+	t.hdrData[layer] = data
 }
 
 func (t *TextureCubemap) Type() gfx.TextureType {

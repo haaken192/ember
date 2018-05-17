@@ -105,4 +105,5 @@ type Factory interface {
 	MakeAttachment(*AttachmentConfig) Attachment
 	MakeFramebuffer(math.IVec2) Framebuffer
 	MakeGBuffer(math.IVec2, Attachment, bool) GBuffer
+	MakeMesh() Mesh
 }
