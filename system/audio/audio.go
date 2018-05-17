@@ -20,45 +20,26 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-package mock
+package audio
 
-import (
-	"github.com/haakenlabs/ember/gfx"
-	"github.com/haakenlabs/ember/pkg/math"
-)
+import "github.com/haakenlabs/ember/core"
 
-var _ gfx.Attachment = &AttachmentTexture2D{}
-var _ gfx.Attachment = &AttachmentRenderbuffer{}
-
-type AttachmentTexture2D struct {
+func Volume() float64 {
+	return core.GetAudioSystem().Volume()
 }
 
-type AttachmentRenderbuffer struct {
+func SetVolume(volume float64) {
+	core.GetAudioSystem().SetVolume(volume)
 }
 
-func (a *AttachmentTexture2D) Attach(uint32) {}
-
-func (a *AttachmentTexture2D) SetSize(math.IVec2) {}
-
-func (a *AttachmentTexture2D) Type() gfx.AttachmentType {
-	return gfx.AttachmentTexture2D
+func Mute() {
+	core.GetAudioSystem().Mute()
 }
 
-func (a *AttachmentRenderbuffer) Attach(uint32) {}
-
-func (a *AttachmentRenderbuffer) SetSize(math.IVec2) {}
-
-func (a *AttachmentRenderbuffer) Type() gfx.AttachmentType {
-	return gfx.AttachmentRenderbuffer
+func Unmute() {
+	core.GetAudioSystem().Unmute()
 }
 
-func (r *Renderer) MakeAttachment(cfg *gfx.AttachmentConfig) gfx.Attachment {
-	switch cfg.Type {
-	case gfx.AttachmentTexture2D:
-		return nil
-	case gfx.AttachmentRenderbuffer:
-		return nil
-	default:
-		return nil
-	}
+func SetMute(mute bool) {
+	core.GetAudioSystem().SetMute(mute)
 }

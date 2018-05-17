@@ -20,45 +20,48 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-package mock
+package time
 
 import (
-	"github.com/haakenlabs/ember/gfx"
-	"github.com/haakenlabs/ember/pkg/math"
+	"github.com/haakenlabs/ember/core"
 )
 
-var _ gfx.Attachment = &AttachmentTexture2D{}
-var _ gfx.Attachment = &AttachmentRenderbuffer{}
-
-type AttachmentTexture2D struct {
+func FrameTime() float64 {
+	return core.GetTimeSystem().FixedTime()
 }
 
-type AttachmentRenderbuffer struct {
+func DeltaTime() float64 {
+	return core.GetTimeSystem().DeltaTime()
 }
 
-func (a *AttachmentTexture2D) Attach(uint32) {}
-
-func (a *AttachmentTexture2D) SetSize(math.IVec2) {}
-
-func (a *AttachmentTexture2D) Type() gfx.AttachmentType {
-	return gfx.AttachmentTexture2D
+func FixedTime() float64 {
+	return core.GetTimeSystem().FixedTime()
 }
 
-func (a *AttachmentRenderbuffer) Attach(uint32) {}
-
-func (a *AttachmentRenderbuffer) SetSize(math.IVec2) {}
-
-func (a *AttachmentRenderbuffer) Type() gfx.AttachmentType {
-	return gfx.AttachmentRenderbuffer
+func Delta() float64 {
+	return core.GetTimeSystem().Delta()
 }
 
-func (r *Renderer) MakeAttachment(cfg *gfx.AttachmentConfig) gfx.Attachment {
-	switch cfg.Type {
-	case gfx.AttachmentTexture2D:
-		return nil
-	case gfx.AttachmentRenderbuffer:
-		return nil
-	default:
-		return nil
-	}
+func Now() float64 {
+	return core.GetTimeSystem().Now()
+}
+
+func Frame() uint64 {
+	return core.GetTimeSystem().Frame()
+}
+
+func FrameStart() {
+	core.GetTimeSystem().FrameStart()
+}
+
+func FrameEnd() {
+	core.GetTimeSystem().FrameEnd()
+}
+
+func LogicTick() {
+	core.GetTimeSystem().LogicTick()
+}
+
+func LogicUpdate() bool {
+	return core.GetTimeSystem().LogicUpdate()
 }

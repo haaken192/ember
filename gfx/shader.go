@@ -62,7 +62,17 @@ type Shader interface {
 	Allocater
 	Binder
 
+	// Deferred is true if this shader can be used for deferred rendering.
 	Deferred() bool
+
+	// AddData adds shader code to this shader.
+	AddData([]byte)
+
+	// ResetData clears the shader code data for this shader.
+	ResetData()
+
+	// Compile compiles and links the shader code data for this shader.
+	Compile() error
 }
 
 type ShaderProperty struct {

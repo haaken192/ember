@@ -26,7 +26,7 @@ import (
 	"github.com/go-gl/gl/v4.3-core/gl"
 
 	"github.com/haakenlabs/ember/gfx"
-	"github.com/haakenlabs/ember/pkg/math"
+	"github.com/haakenlabs/ember/system/instance"
 )
 
 var _ gfx.Texture = &Texture3D{}
@@ -35,40 +35,26 @@ type Texture3D struct {
 	BaseTexture
 }
 
-func NewTexture3D(size math.IVec2, layers int32, format gfx.TextureFormat) *Texture3D {
+func NewTexture3D(cfg *gfx.TextureConfig) *Texture3D {
 	t := &Texture3D{}
 
 	t.textureType = gl.TEXTURE_3D
 
-	//t.SetName("Texture3D")
-	//instance.MustAssign(t)
+	t.SetName("Texture3D")
+	instance.MustAssign(t)
 
-	t.size = size
+	t.size = cfg.Size
 	t.uploadFunc = t.Upload
 
-	t.internalFormat = TextureFormatToInternal(format)
-	t.glFormat = TextureFormatToFormat(format)
-	t.storageFormat = TextureFormatToStorage(format)
+	t.internalFormat = TextureFormatToInternal(cfg.Format)
+	t.glFormat = TextureFormatToFormat(cfg.Format)
+	t.storageFormat = TextureFormatToStorage(cfg.Format)
 
 	return t
 }
 
-func NewTexture3DFrom(texture Texture3D) *Texture3D {
-	t := &Texture3D{}
-
-	t.textureType = gl.TEXTURE_3D
-
-	//t.SetName("Texture3D")
-	//instance.MustAssign(t)
-
-	t.size = texture.Size()
-	t.uploadFunc = t.Upload
-
-	t.internalFormat = texture.internalFormat
-	t.glFormat = texture.glFormat
-	t.storageFormat = texture.storageFormat
-
-	return t
+func (t *Texture3D) Type() gfx.TextureType {
+	return gfx.Texture3D
 }
 
 func (t *Texture3D) Upload() {

@@ -31,12 +31,15 @@ import (
 	"github.com/go-gl/mathgl/mgl32"
 	"github.com/sirupsen/logrus"
 
+	"github.com/haakenlabs/ember/core"
 	"github.com/haakenlabs/ember/gfx"
 )
 
 var _ gfx.Shader = &Shader{}
 
 type Shader struct {
+	core.BaseObject
+
 	reference  uint32
 	components map[gfx.ShaderComponent]uint32
 	data       []byte
@@ -82,8 +85,21 @@ func (s *Shader) Deferred() bool {
 	return s.deferred
 }
 
+// AddData adds shader code to this shader.
+func (s *Shader) AddData(data []byte) {
+	s.data = append(s.data, data...)
+}
+
+// ResetData clears the shader code data for this shader.
+func (s *Shader) ResetData() {
+	s.data = s.data[:0]
+}
+
+// Compile compiles and links the shader code data for this shader.
 func (s *Shader) Compile() error {
-	s.reference = gl.CreateProgram()
+	if s.reference == 0 {
+		s.reference = gl.CreateProgram()
+	}
 
 	if containsShaderType(gfx.ShaderComponentVertex, s.data) {
 		componentId, err := loadComponent(s.reference, gfx.ShaderComponentVertex, s.data)

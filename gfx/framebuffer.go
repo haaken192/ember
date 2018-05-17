@@ -31,10 +31,8 @@ const (
 	AttachmentRenderbuffer
 )
 
-type ClearBufferFlags uint32
-
 const (
-	ClearColorBuffer ClearBufferFlags = iota
+	ClearColorBuffer = 1 << iota
 	ClearDepthBuffer
 	ClearStencilBuffer
 )
@@ -50,6 +48,12 @@ const (
 	AttachmentStencil
 )
 
+type AttachmentConfig struct {
+	Type   AttachmentType
+	Tex    Texture
+	TexCfg *TextureConfig
+}
+
 type Attachment interface {
 	Attach(uint32)
 	SetSize(math.IVec2)
@@ -59,8 +63,8 @@ type Attachment interface {
 type Framebuffer interface {
 	Allocater
 	Binder
+	Sizable
 
-	Resize()
 	Validate() error
 	Clear()
 	ClearFlags(uint32)

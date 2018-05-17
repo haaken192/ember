@@ -20,45 +20,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-package mock
+package builtin
 
-import (
-	"github.com/haakenlabs/ember/gfx"
-	"github.com/haakenlabs/ember/pkg/math"
-)
-
-var _ gfx.Attachment = &AttachmentTexture2D{}
-var _ gfx.Attachment = &AttachmentRenderbuffer{}
-
-type AttachmentTexture2D struct {
-}
-
-type AttachmentRenderbuffer struct {
-}
-
-func (a *AttachmentTexture2D) Attach(uint32) {}
-
-func (a *AttachmentTexture2D) SetSize(math.IVec2) {}
-
-func (a *AttachmentTexture2D) Type() gfx.AttachmentType {
-	return gfx.AttachmentTexture2D
-}
-
-func (a *AttachmentRenderbuffer) Attach(uint32) {}
-
-func (a *AttachmentRenderbuffer) SetSize(math.IVec2) {}
-
-func (a *AttachmentRenderbuffer) Type() gfx.AttachmentType {
-	return gfx.AttachmentRenderbuffer
-}
-
-func (r *Renderer) MakeAttachment(cfg *gfx.AttachmentConfig) gfx.Attachment {
-	switch cfg.Type {
-	case gfx.AttachmentTexture2D:
-		return nil
-	case gfx.AttachmentRenderbuffer:
-		return nil
-	default:
-		return nil
-	}
-}
+//go:generate go-bindata -o builtin_gen.go -prefix assets -pkg builtin assets/...

@@ -22,6 +22,8 @@ SOFTWARE.
 
 package gfx
 
+import "github.com/haakenlabs/ember/pkg/math"
+
 type TextureType uint8
 
 const (
@@ -89,7 +91,7 @@ type Texture interface {
 	WrapR() int32
 	WrapS() int32
 	WrapT() int32
-	SetWrapR(wrapR int32)
+	SetWrapR(int32)
 	SetWrapRST(int32, int32, int32)
 	SetWrapS(int32)
 	SetWrapST(int32, int32)
@@ -99,4 +101,11 @@ type Texture interface {
 	GenerateMipmaps()
 	Layers() int32
 	SetLayers(int32)
+}
+
+type TextureConfig struct {
+	Type   TextureType
+	Format TextureFormat
+	Layers int32
+	Size   math.IVec2
 }

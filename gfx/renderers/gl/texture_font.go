@@ -26,7 +26,7 @@ import (
 	"github.com/go-gl/gl/v4.3-core/gl"
 
 	"github.com/haakenlabs/ember/gfx"
-	"github.com/haakenlabs/ember/pkg/math"
+	"github.com/haakenlabs/ember/system/instance"
 )
 
 var _ gfx.Texture = &TextureFont{}
@@ -37,15 +37,15 @@ type TextureFont struct {
 	data []uint8
 }
 
-func NewTextureFont(size math.IVec2) *TextureFont {
+func NewTextureFont(cfg *gfx.TextureConfig) *TextureFont {
 	t := &TextureFont{}
 
 	t.textureType = gl.TEXTURE_2D
 
-	//t.SetName("TextureFont")
-	//instance.MustAssign(t)
+	t.SetName("TextureFont")
+	instance.MustAssign(t)
 
-	t.size = size
+	t.size = cfg.Size
 	t.uploadFunc = t.Upload
 
 	t.internalFormat = gl.RGBA8
@@ -53,6 +53,10 @@ func NewTextureFont(size math.IVec2) *TextureFont {
 	t.storageFormat = gl.UNSIGNED_BYTE
 
 	return t
+}
+
+func (t *TextureFont) Type() gfx.TextureType {
+	return gfx.TextureFont
 }
 
 func (t *TextureFont) Upload() {

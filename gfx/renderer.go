@@ -46,6 +46,9 @@ type Allocater interface {
 
 	// Dealloc releases any previously allocated resources for the object.
 	Dealloc()
+
+	// ID returns the instance ID of this object.
+	ID() int32
 }
 
 type Sizable interface {
@@ -98,8 +101,8 @@ type Renderer interface {
 
 type Factory interface {
 	MakeShader(bool) Shader
-	MakeTexture(math.IVec2, TextureType) Texture
-	MakeAttachment(AttachmentType) Attachment
-	MakeFramebuffer() Framebuffer
-	MakeGBuffer(bool) GBuffer
+	MakeTexture(*TextureConfig) Texture
+	MakeAttachment(*AttachmentConfig) Attachment
+	MakeFramebuffer(math.IVec2) Framebuffer
+	MakeGBuffer(math.IVec2, Attachment, bool) GBuffer
 }

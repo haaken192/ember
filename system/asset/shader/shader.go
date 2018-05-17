@@ -28,10 +28,9 @@ import (
 	"path/filepath"
 	"sync"
 
-	"github.com/haakenlabs/arc/graphics"
-	"github.com/haakenlabs/arc/system/asset"
 	"github.com/haakenlabs/ember/core"
 	"github.com/haakenlabs/ember/gfx"
+	"github.com/haakenlabs/ember/system/asset"
 	"github.com/haakenlabs/ember/system/renderer"
 )
 
@@ -88,7 +87,7 @@ func (h *Handler) Load(r *core.Resource) error {
 	return h.Add(name, s)
 }
 
-func (h *Handler) Add(name string, shader *gfx.Shader) error {
+func (h *Handler) Add(name string, shader gfx.Shader) error {
 	if _, dup := h.Items[name]; dup {
 		return core.ErrAssetExists(name)
 	}
@@ -103,13 +102,13 @@ func (h *Handler) Add(name string, shader *gfx.Shader) error {
 }
 
 // Get gets an asset by name.
-func (h *Handler) Get(name string) (*graphics.Shader, error) {
+func (h *Handler) Get(name string) (gfx.Shader, error) {
 	a, err := h.GetAsset(name)
 	if err != nil {
 		return nil, err
 	}
 
-	a2, ok := a.(*graphics.Shader)
+	a2, ok := a.(gfx.Shader)
 	if !ok {
 		return nil, core.ErrAssetType(name)
 	}
@@ -118,7 +117,7 @@ func (h *Handler) Get(name string) (*graphics.Shader, error) {
 }
 
 // MustGet is like GetAsset, but panics if an error occurs.
-func (h *Handler) MustGet(name string) *graphics.Shader {
+func (h *Handler) MustGet(name string) gfx.Shader {
 	a, err := h.Get(name)
 	if err != nil {
 		panic(err)
@@ -139,23 +138,23 @@ func NewHandler() *Handler {
 	return h
 }
 
-func NewShaderUtilsCopy() *graphics.Shader {
+func NewShaderUtilsCopy() gfx.Shader {
 	return MustGet("utils/copy")
 }
 
-func NewShaderUtilsSkybox() *graphics.Shader {
+func NewShaderUtilsSkybox() gfx.Shader {
 	return MustGet("utils/skybox")
 }
 
-func DefaultShader() *graphics.Shader {
+func DefaultShader() gfx.Shader {
 	return MustGet("standard")
 }
 
-func Get(name string) (*graphics.Shader, error) {
+func Get(name string) (gfx.Shader, error) {
 	return mustHandler().Get(name)
 }
 
-func MustGet(name string) *graphics.Shader {
+func MustGet(name string) gfx.Shader {
 	return mustHandler().MustGet(name)
 }
 

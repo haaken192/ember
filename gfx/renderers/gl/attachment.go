@@ -41,8 +41,8 @@ type AttachmentTexture2D struct {
 	mipLevel   int32
 }
 
-func NewAttachmentRenderBuffer(size math.IVec2, format gfx.TextureFormat) *AttachmentRenderbuffer {
-	rbuffer := NewRenderBuffer(size, format)
+func NewAttachmentRenderBuffer(cfg *gfx.TextureConfig) *AttachmentRenderbuffer {
+	rbuffer := NewRenderBuffer(cfg.Size, cfg.Format)
 
 	return NewAttachmentRenderBufferFrom(rbuffer)
 }
@@ -71,16 +71,25 @@ func (a *AttachmentRenderbuffer) Type() gfx.AttachmentType {
 	return gfx.AttachmentRenderbuffer
 }
 
-func NewAttachmentTexture2D(size math.IVec2, format gfx.TextureFormat) *AttachmentTexture2D {
-	t := NewTexture2D(size, format)
+func NewAttachmentTexture2D(cfg *gfx.TextureConfig) *AttachmentTexture2D {
+	t := NewTexture2D(cfg)
 	t.Alloc()
 
-	return NewAttachmentTexture2DFrom(t, false)
+	a := &AttachmentTexture2D{
+		attachment: t,
+	}
+
+	return a
 }
 
-func NewAttachmentTexture2DFrom(texture *Texture2D, clone bool) *AttachmentTexture2D {
+func NewAttachmentTexture2DFrom(texture gfx.Texture) *AttachmentTexture2D {
+	t, ok := texture.(*Texture2D)
+	if !ok {
+		return nil
+	}
+
 	a := &AttachmentTexture2D{
-		attachment: texture,
+		attachment: t,
 	}
 
 	return a
@@ -108,4 +117,21 @@ func (a *AttachmentTexture2D) AttachmentObject() *Texture2D {
 
 func (a *AttachmentTexture2D) Type() gfx.AttachmentType {
 	return gfx.AttachmentTexture2D
+}
+
+func (r *Renderer) MakeAttachment(cfg *gfx.AttachmentConfig) gfx.Attachment {
+	switch cfg.Type {
+	case gfx.AttachmentTexture2D:
+		if cfg.Tex != nil {
+			return NewAttachmentTexture2DFrom(cfg.Tex)
+		} else if cfg.TexCfg != nil {
+			return NewAttachmentTexture2D(cfg.TexCfg)
+		}
+	case gfx.AttachmentRenderbuffer:
+		if cfg.TexCfg != nil {
+			return NewAttachmentRenderBuffer(cfg.TexCfg)
+		}
+	}
+
+	return nil
 }

@@ -26,6 +26,7 @@ import (
 	"github.com/go-gl/gl/v4.3-core/gl"
 
 	"github.com/haakenlabs/ember/gfx"
+	"github.com/haakenlabs/ember/system/instance"
 )
 
 var _ gfx.Texture = &TextureColor{}
@@ -41,12 +42,16 @@ func NewTextureColor() *TextureColor {
 
 	t.textureType = gl.TEXTURE_3D
 
-	//t.SetName("TextureColor")
-	//instance.MustAssign(t)
+	t.SetName("TextureColor")
+	instance.MustAssign(t)
 
 	t.uploadFunc = t.Upload
 
 	return t
+}
+
+func (t *TextureColor) Type() gfx.TextureType {
+	return gfx.TextureColor
 }
 
 func (t *TextureColor) Upload() {

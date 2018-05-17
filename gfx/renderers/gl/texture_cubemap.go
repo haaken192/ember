@@ -26,7 +26,7 @@ import (
 	"github.com/go-gl/gl/v4.3-core/gl"
 
 	"github.com/haakenlabs/ember/gfx"
-	"github.com/haakenlabs/ember/pkg/math"
+	"github.com/haakenlabs/ember/system/instance"
 )
 
 var _ gfx.Texture = &TextureCubemap{}
@@ -38,7 +38,7 @@ type TextureCubemap struct {
 	hdrData [6][]float32
 }
 
-func NewTextureCubemap(size math.IVec2, format gfx.TextureFormat) *TextureCubemap {
+func NewTextureCubemap(cfg *gfx.TextureConfig) *TextureCubemap {
 	t := &TextureCubemap{}
 
 	t.data = [6][]uint8{}
@@ -46,15 +46,15 @@ func NewTextureCubemap(size math.IVec2, format gfx.TextureFormat) *TextureCubema
 
 	t.textureType = gl.TEXTURE_CUBE_MAP
 
-	//t.SetName("TextureCubemap")
-	//instance.MustAssign(t)
+	t.SetName("TextureCubemap")
+	instance.MustAssign(t)
 
-	t.size = size
+	t.size = cfg.Size
 	t.uploadFunc = t.Upload
 
-	t.internalFormat = TextureFormatToInternal(format)
-	t.glFormat = TextureFormatToFormat(format)
-	t.storageFormat = TextureFormatToStorage(format)
+	t.internalFormat = TextureFormatToInternal(cfg.Format)
+	t.glFormat = TextureFormatToFormat(cfg.Format)
+	t.storageFormat = TextureFormatToStorage(cfg.Format)
 
 	return t
 }
@@ -73,6 +73,10 @@ func (t *TextureCubemap) SetHDRData(data []float32, offset int) {
 	}
 
 	t.hdrData[offset] = data
+}
+
+func (t *TextureCubemap) Type() gfx.TextureType {
+	return gfx.TextureCubemap
 }
 
 func (t *TextureCubemap) Upload() {

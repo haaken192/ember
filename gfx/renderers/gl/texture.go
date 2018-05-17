@@ -23,15 +23,16 @@ SOFTWARE.
 package gl
 
 import (
-	"fmt"
-
 	"github.com/go-gl/gl/v4.3-core/gl"
 
+	"github.com/haakenlabs/ember/core"
 	"github.com/haakenlabs/ember/gfx"
 	"github.com/haakenlabs/ember/pkg/math"
 )
 
 type BaseTexture struct {
+	core.BaseObject
+
 	uploadFunc     func()
 	internalFormat int32
 	storageFormat  uint32
@@ -47,6 +48,16 @@ type BaseTexture struct {
 	size           math.IVec2
 	resizable      bool
 	textureType    uint32
+}
+
+func (t *BaseTexture) Bind() {
+	gl.BindTexture(t.textureType, t.reference)
+}
+
+func (t *BaseTexture) Unbind() {}
+
+func (t *BaseTexture) Reference() uint32 {
+	return t.reference
 }
 
 func (t *BaseTexture) Alloc() error {
@@ -84,11 +95,31 @@ func (t *BaseTexture) Activate(unit uint32) {
 	t.Bind()
 }
 
-func (t *BaseTexture) Bind() {
-	gl.BindTexture(t.textureType, t.reference)
+func (t *BaseTexture) Size() math.IVec2 {
+	return t.size
 }
 
-func (t *BaseTexture) Unbind() {}
+func (t *BaseTexture) SetSize(size math.IVec2) {
+	if !t.resizable {
+		return
+	}
+	if size.X() <= 0 || size.Y() <= 0 {
+		return
+	}
+
+	t.size = size
+	t.uploadFunc()
+}
+
+func (t *BaseTexture) SetResizable(resizable bool) {
+	t.resizable = resizable
+}
+
+func (t *BaseTexture) Resize() {}
+
+func (t *BaseTexture) Resizable() bool {
+	return t.resizable
+}
 
 // FilterMag
 func (t *BaseTexture) FilterMag() int32 {
@@ -124,11 +155,6 @@ func (t *BaseTexture) MipLevels() uint32 {
 	return 1
 }
 
-// Resizable
-func (t *BaseTexture) Resizable() bool {
-	return t.resizable
-}
-
 // SetFilter
 func (t *BaseTexture) SetFilter(magFilter, minFilter int32) {
 	t.SetMagFilter(magFilter)
@@ -145,26 +171,6 @@ func (t *BaseTexture) SetMagFilter(magFilter int32) {
 func (t *BaseTexture) SetMinFilter(minFilter int32) {
 	t.filterMin = minFilter
 	gl.TexParameteri(t.textureType, gl.TEXTURE_MIN_FILTER, t.filterMin)
-}
-
-// SetResizable
-func (t *BaseTexture) SetResizable(resizable bool) {
-	t.resizable = resizable
-}
-
-// SetSize
-func (t *BaseTexture) SetSize(size math.IVec2) error {
-	if !t.resizable {
-		return fmt.Errorf("texture setSize error: texture %d is not resizable", t.reference)
-	}
-	if size.X() <= 0 || size.Y() <= 0 {
-		return fmt.Errorf("texture setSize error: invalid size: %s", size)
-	}
-
-	t.size = size
-	t.uploadFunc()
-
-	return nil
 }
 
 // SetGLFormats
@@ -225,19 +231,9 @@ func (t *BaseTexture) SetWrapT(wrapT int32) {
 	}
 }
 
-// Size
-func (t *BaseTexture) Size() math.IVec2 {
-	return t.size
-}
-
 // TexFormat
 func (t *BaseTexture) Format() gfx.TextureFormat {
 	return t.textureFormat
-}
-
-// Reference
-func (t *BaseTexture) Reference() uint32 {
-	return t.reference
 }
 
 // Upload
@@ -418,16 +414,18 @@ func TextureFormatToStorage(format gfx.TextureFormat) uint32 {
 	return 0
 }
 
-func (r *Renderer) MakeTexture(size math.IVec2, textureType gfx.TextureType) gfx.Texture {
-	switch textureType {
+func (r *Renderer) MakeTexture(cfg *gfx.TextureConfig) gfx.Texture {
+	switch cfg.Type {
 	case gfx.Texture2D:
-		return NewTexture2D(size, textureType)
+		return NewTexture2D(cfg)
 	case gfx.Texture3D:
-		return NewTexture3D(size, textureType)
-	case gfx.TextureColor:
-		return NewTextureColor(size, textureType)
+		return NewTexture3D(cfg)
 	case gfx.TextureCubemap:
-		return NewTextureCubemap(size, textureType)
+		return NewTextureCubemap(cfg)
+	case gfx.TextureFont:
+		return NewTextureFont(cfg)
+	case gfx.TextureColor:
+		return NewTextureColor()
 	default:
 		return nil
 	}

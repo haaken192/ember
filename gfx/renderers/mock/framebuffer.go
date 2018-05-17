@@ -22,12 +22,18 @@ SOFTWARE.
 
 package mock
 
-import "github.com/haakenlabs/ember/gfx"
+import (
+	"github.com/haakenlabs/ember/gfx"
+	"github.com/haakenlabs/ember/pkg/math"
+)
 
 var _ gfx.Framebuffer = &Framebuffer{}
 var _ gfx.GBuffer = &GBuffer{}
 
-type Framebuffer struct{}
+type Framebuffer struct {
+	size math.IVec2
+}
+
 type GBuffer struct {
 	Framebuffer
 
@@ -48,8 +54,6 @@ func (f *Framebuffer) Alloc() error {
 
 func (f *Framebuffer) Dealloc() {}
 
-func (f *Framebuffer) Resize() {}
-
 func (f *Framebuffer) Validate() error {
 	return nil
 }
@@ -57,6 +61,26 @@ func (f *Framebuffer) Validate() error {
 func (f *Framebuffer) Clear() {}
 
 func (f *Framebuffer) ClearFlags(uint32) {}
+
+func (f *Framebuffer) ID() int32 {
+	return 1
+}
+
+func (f *Framebuffer) Size() math.IVec2 {
+	return f.size
+}
+
+func (f *Framebuffer) SetSize(size math.IVec2) {
+	f.size = size
+}
+
+func (f *Framebuffer) SetResizable(bool) {}
+
+func (f *Framebuffer) Resize() {}
+
+func (f *Framebuffer) Resizable() bool {
+	return true
+}
 
 func (g *GBuffer) HDR() bool {
 	return g.hdr
@@ -66,22 +90,13 @@ func (g *GBuffer) SetHDR(value bool) {
 	g.hdr = value
 }
 
-func (r *Renderer) MakeAttachment(aType gfx.AttachmentType) gfx.Attachment {
-	switch aType {
-	case gfx.AttachmentTexture2D:
-		return nil
-	case gfx.AttachmentRenderbuffer:
-		return nil
-	default:
-		return nil
+func (r *Renderer) MakeFramebuffer(size math.IVec2) gfx.Framebuffer {
+	return &Framebuffer{
+		size: size,
 	}
 }
 
-func (r *Renderer) MakeFramebuffer() gfx.Framebuffer {
-	return &Framebuffer{}
-}
-
-func (r *Renderer) MakeGBuffer(hdr bool) gfx.GBuffer {
+func (r *Renderer) MakeGBuffer(size math.IVec2, depth gfx.Attachment, hdr bool) gfx.GBuffer {
 	return &GBuffer{
 		hdr: hdr,
 	}

@@ -51,6 +51,18 @@ func (s *Shader) Deferred() bool {
 	return true
 }
 
+func (s *Shader) AddData([]byte) {}
+
+func (s *Shader) ResetData() {}
+
+func (s *Shader) Compile() error {
+	return nil
+}
+
+func (s *Shader) ID() int32 {
+	return 1
+}
+
 func (r *Renderer) MakeShader(bool) gfx.Shader {
 	return &Shader{}
 }

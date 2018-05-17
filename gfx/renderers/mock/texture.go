@@ -120,9 +120,13 @@ func (t *Texture) Layers() int32 {
 
 func (t *Texture) SetLayers(int32) {}
 
-func (r *Renderer) MakeTexture(size math.IVec2, textureType gfx.TextureType) gfx.Texture {
+func (t *Texture) ID() int32 {
+	return 1
+}
+
+func (r *Renderer) MakeTexture(cfg *gfx.TextureConfig) gfx.Texture {
 	return &Texture{
-		size:        size,
-		textureType: textureType,
+		size:        cfg.Size,
+		textureType: cfg.Type,
 	}
 }
