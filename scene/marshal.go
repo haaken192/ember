@@ -22,6 +22,114 @@ SOFTWARE.
 
 package scene
 
-type UnmarshalComponentFunc func([]byte) (Component, error)
+import (
+	"encoding/json"
+	"fmt"
+)
 
-var componentUnmarshaller = make(map[string]UnmarshalComponentFunc)
+type UnmarshalComponentFunc func([]byte) (Component, error)
+type MarshalComponentFunc func(Component) ([]byte, error)
+
+type JSONComponent struct {
+	Type string          `json:"type"`
+	Data json.RawMessage `json:"data"`
+}
+
+type JSONGameObject struct {
+	Name       string            `json:"name"`
+	Components []*JSONComponent  `json:"components"`
+	Children   []*JSONGameObject `json:"children"`
+}
+
+type JSONScene struct {
+	Name        string            `json:"name"`
+	GameObjects []*JSONGameObject `json:"gameobjects"`
+}
+
+var (
+	componentMarshaller   = make(map[string]MarshalComponentFunc)
+	componentUnmarshaller = make(map[string]UnmarshalComponentFunc)
+)
+
+func AddComponentMarshaller(t string, c MarshalComponentFunc) error {
+	if _, dup := componentMarshaller[t]; dup {
+		return fmt.Errorf("duplicate component marshaller for type %s", t)
+	}
+
+	componentMarshaller[t] = c
+
+	return nil
+}
+
+func AddComponentUnmarshaller(t string, c UnmarshalComponentFunc) error {
+	if _, dup := componentUnmarshaller[t]; dup {
+		return fmt.Errorf("duplicate component unmarshaller for type %s", t)
+	}
+
+	componentUnmarshaller[t] = c
+
+	return nil
+}
+
+func ComponentMarshaller(t string) (MarshalComponentFunc, error) {
+	if c, ok := componentMarshaller[t]; ok {
+		return c, nil
+	}
+
+	return nil, fmt.Errorf("no such component marshaller for type %s", t)
+}
+
+func ComponentUnmarshaller(t string) (UnmarshalComponentFunc, error) {
+	if c, ok := componentUnmarshaller[t]; ok {
+		return c, nil
+	}
+
+	return nil, fmt.Errorf("no such component marshaller for type %s", t)
+}
+
+func BuildScene(data *JSONScene) (*Scene, error) {
+	s := NewScene(data.Name)
+
+	for _, oj := range data.GameObjects {
+		o, err := BuildGameObject(oj, nil)
+		if err != nil {
+			return nil, err
+		}
+
+		if err := s.AddObject(o, nil); err != nil {
+			return nil, err
+		}
+	}
+
+	return s, nil
+}
+
+func BuildGameObject(j *JSONGameObject, parent *GameObject) (*GameObject, error) {
+	o := NewGameObject(j.Name)
+	o.parent = parent
+
+	for _, oj := range j.Children {
+		co, err := BuildGameObject(oj, o)
+		if err != nil {
+			return nil, err
+		}
+
+		o.children = append(o.children, co)
+	}
+
+	for _, cj := range j.Components {
+		u, err := ComponentUnmarshaller(cj.Type)
+		if err != nil {
+			return nil, err
+		}
+
+		c, err := u(cj.Data)
+		if err != nil {
+			return nil, err
+		}
+
+		o.components = append(o.components, c)
+	}
+
+	return o, nil
+}

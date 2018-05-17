@@ -23,8 +23,13 @@ SOFTWARE.
 package scene
 
 import (
+	"fmt"
+	"strconv"
+
 	"github.com/haakenlabs/ember/core"
 	"github.com/haakenlabs/ember/gfx"
+	"github.com/haakenlabs/ember/system/asset/shader"
+	"github.com/haakenlabs/ember/system/asset/texture"
 	"github.com/haakenlabs/ember/system/instance"
 )
 
@@ -126,7 +131,38 @@ func NewMaterial() *Material {
 }
 
 func BuildMaterial(data *MaterialData) (*Material, error) {
+	var err error
+
 	m := NewMaterial()
+
+	/* Populate shader */
+	m.shader, err = shader.Get(data.Shader)
+	if err != nil {
+		return nil, err
+	}
+
+	/* Populate textures. */
+	for k, v := range data.Textures {
+		/* Attempt to parse format: "0": "texture.png" */
+		i, err := strconv.ParseUint(k, 10, 8)
+		if err != nil {
+			return nil, err
+		}
+		if i < 16 {
+			t, err := texture.Get(v)
+			if err != nil {
+				return nil, err
+			}
+			m.textures[i] = t
+		} else {
+			return nil, fmt.Errorf("texture index out of range: %d", i)
+		}
+	}
+
+	/* Populate shader properties. */
+	for k, v := range data.ShaderProperties {
+		m.shaderProperties[k] = v
+	}
 
 	return m, nil
 }
