@@ -22,7 +22,10 @@ SOFTWARE.
 
 package gfx
 
-import "github.com/haakenlabs/ember/pkg/math"
+import (
+	"github.com/go-gl/glfw/v3.2/glfw"
+	"github.com/haakenlabs/ember/pkg/math"
+)
 
 // Binder is an object which can bind or unbind itself in the renderer.
 type Binder interface {
@@ -87,14 +90,14 @@ type Renderer interface {
 	Dealloc(Allocater)
 
 	// Init initializes the renderer.
-	Init() error
+	Init(*glfw.Window) error
 
 	// Destroy tears down the renderer.
 	Destroy()
 }
 
 type Factory interface {
-	MakeShader() Shader
+	MakeShader(bool) Shader
 	MakeTexture(math.IVec2, TextureType) Texture
 	MakeAttachment(AttachmentType) Attachment
 	MakeFramebuffer() Framebuffer

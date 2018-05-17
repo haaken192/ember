@@ -20,37 +20,43 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-package mock
+package core
 
-import (
-	"github.com/sirupsen/logrus"
+import "github.com/faiface/beep"
 
-	"github.com/haakenlabs/ember/gfx"
-)
+type Sound struct {
+	BaseObject
 
-var _ gfx.Shader = &Shader{}
+	streamer beep.Streamer
+	format   beep.Format
 
-type Shader struct{}
-
-func (s *Shader) Bind() {}
-
-func (s *Shader) Unbind() {}
-
-func (s *Shader) Reference() uint32 {
-	return 1
+	loop bool
 }
 
-func (s *Shader) Alloc() error {
-	logrus.Info("alloc mock shader")
-	return nil
+func NewSound(streamer beep.Streamer, format beep.Format) *Sound {
+	s := &Sound{
+		streamer: streamer,
+		format:   format,
+	}
+
+	s.SetName("Sound")
+	GetInstanceSystem().MustAssign(s)
+
+	return s
 }
 
-func (s *Shader) Dealloc() {}
-
-func (s *Shader) Deferred() bool {
-	return true
+func (s *Sound) Play() {
+	GetAudioSystem().PlaySound(s)
 }
 
-func (r *Renderer) MakeShader(bool) gfx.Shader {
-	return &Shader{}
+func (s *Sound) Stop() {
+
+}
+
+func (s *Sound) Loop() bool {
+	return s.loop
+}
+
+func (s *Sound) SetLoop(loop bool) {
+	s.loop = loop
 }

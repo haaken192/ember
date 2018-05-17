@@ -20,37 +20,48 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-package mock
+package window
 
 import (
-	"github.com/sirupsen/logrus"
+	"github.com/go-gl/glfw/v3.2/glfw"
+	"github.com/go-gl/mathgl/mgl32"
 
-	"github.com/haakenlabs/ember/gfx"
+	"github.com/haakenlabs/ember/core"
+	"github.com/haakenlabs/ember/pkg/math"
 )
 
-var _ gfx.Shader = &Shader{}
-
-type Shader struct{}
-
-func (s *Shader) Bind() {}
-
-func (s *Shader) Unbind() {}
-
-func (s *Shader) Reference() uint32 {
-	return 1
+func AspectRatio() float32 {
+	return core.GetWindowSystem().AspectRatio()
 }
 
-func (s *Shader) Alloc() error {
-	logrus.Info("alloc mock shader")
-	return nil
+func CenterWindow() {
+	core.GetWindowSystem().CenterWindow()
 }
 
-func (s *Shader) Dealloc() {}
-
-func (s *Shader) Deferred() bool {
-	return true
+func EnableVsync(enable bool) {
+	core.GetWindowSystem().EnableVsync(enable)
 }
 
-func (r *Renderer) MakeShader(bool) gfx.Shader {
-	return &Shader{}
+func Resolution() math.IVec2 {
+	return core.GetWindowSystem().Resolution()
+}
+
+func SetSize(size math.IVec2) {
+	core.GetWindowSystem().SetSize(size)
+}
+
+func SwapBuffers() {
+	core.GetWindowSystem().SwapBuffers()
+}
+
+func Vsync() bool {
+	return core.GetWindowSystem().Vsync()
+}
+
+func GLFWWindow() *glfw.Window {
+	return core.GetWindowSystem().GLFWWindow()
+}
+
+func OrthoMatrix() mgl32.Mat4 {
+	return core.GetWindowSystem().OrthoMatrix()
 }

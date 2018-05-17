@@ -20,37 +20,39 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-package mock
+package renderer
 
 import (
-	"github.com/sirupsen/logrus"
-
+	"github.com/haakenlabs/ember/core"
 	"github.com/haakenlabs/ember/gfx"
+	"github.com/haakenlabs/ember/pkg/math"
 )
 
-var _ gfx.Shader = &Shader{}
-
-type Shader struct{}
-
-func (s *Shader) Bind() {}
-
-func (s *Shader) Unbind() {}
-
-func (s *Shader) Reference() uint32 {
-	return 1
+func Begin() {
+	core.GetWindowSystem().Renderer().Begin()
 }
 
-func (s *Shader) Alloc() error {
-	logrus.Info("alloc mock shader")
-	return nil
+func End() {
+	core.GetWindowSystem().Renderer().Begin()
 }
 
-func (s *Shader) Dealloc() {}
-
-func (s *Shader) Deferred() bool {
-	return true
+func MakeShader(deferred bool) gfx.Shader {
+	return core.GetWindowSystem().Renderer().MakeShader(deferred)
 }
 
-func (r *Renderer) MakeShader(bool) gfx.Shader {
-	return &Shader{}
+func MakeTexture(size math.IVec2, textureType gfx.TextureType) gfx.Texture {
+	return core.GetWindowSystem().Renderer().MakeTexture(size, textureType)
+
+}
+
+func MakeAttachment(attachmentType gfx.AttachmentType) gfx.Attachment {
+	return core.GetWindowSystem().Renderer().MakeAttachment(attachmentType)
+}
+
+func MakeFramebuffer() gfx.Framebuffer {
+	return core.GetWindowSystem().Renderer().MakeFramebuffer()
+}
+
+func MakeGBuffer(hdr bool) gfx.GBuffer {
+	return core.GetWindowSystem().Renderer().MakeGBuffer(hdr)
 }

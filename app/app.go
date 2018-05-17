@@ -23,14 +23,21 @@ SOFTWARE.
 package app
 
 import (
-	"sync"
 	"os"
 	"os/signal"
+	"sync"
 	"syscall"
 
 	"github.com/sirupsen/logrus"
 
+	"github.com/haakenlabs/arc/system/asset"
+	"github.com/haakenlabs/arc/system/asset/font"
+	"github.com/haakenlabs/arc/system/asset/mesh"
+	"github.com/haakenlabs/arc/system/asset/shader"
+	"github.com/haakenlabs/arc/system/asset/skybox"
+	"github.com/haakenlabs/arc/system/asset/texture"
 	"github.com/haakenlabs/ember/core"
+	"github.com/haakenlabs/ember/gfx"
 	"github.com/juju/errors"
 )
 
@@ -40,7 +47,7 @@ const (
 	maxFrameSkip = 5
 
 	// builtinAssets is the path to the builtin asset bundle.
-	builtinAssets =  "<builtin>:builtin.json"
+	builtinAssets = "<builtin>:builtin.json"
 )
 
 var (
@@ -85,12 +92,6 @@ func (a *App) Setup() error {
 	}
 	setApp(a)
 
-	//a.RegisterSystem(core.NewWindowSystem(a.Name))
-	//a.RegisterSystem(core.NewInstanceSystem())
-	//a.RegisterSystem(core.NewAssetSystem())
-	//a.RegisterSystem(core.NewTimeSystem())
-	//a.RegisterSystem(core.NewSceneSystem())
-
 	if a.PreSetupFunc != nil {
 		if err := a.PreSetupFunc(); err != nil {
 			return err
@@ -105,11 +106,6 @@ func (a *App) Setup() error {
 		}
 	}
 
-	//asset.RegisterHandler(texture.NewHandler())
-	//asset.RegisterHandler(shader.NewHandler())
-	//asset.RegisterHandler(mesh.NewHandler())
-	//asset.RegisterHandler(font.NewHandler())
-	//asset.RegisterHandler(skybox.NewHandler())
 	//
 	//if err := asset.LoadManifest(builtinAssets); err != nil {
 	//	return err
@@ -196,7 +192,6 @@ func (a *App) MustSystem(name string) core.System {
 	return s
 }
 
-
 func (a *App) setupSignalHandler() {
 	s := make(chan os.Signal)
 	signal.Notify(s, os.Interrupt, syscall.SIGTERM)
@@ -214,8 +209,20 @@ func CurrentApp() *App {
 }
 
 // NewApp creates a new application.
-func NewApp() *App {
+func NewApp(renderer gfx.Renderer) *App {
 	a := &App{}
+
+	a.RegisterSystem(core.NewWindowSystem(a.Name, renderer))
+	a.RegisterSystem(core.NewInstanceSystem())
+	a.RegisterSystem(core.NewAssetSystem())
+	a.RegisterSystem(core.NewTimeSystem())
+	a.RegisterSystem(core.NewSceneSystem())
+
+	asset.RegisterHandler(texture.NewHandler())
+	asset.RegisterHandler(shader.NewHandler())
+	asset.RegisterHandler(mesh.NewHandler())
+	asset.RegisterHandler(font.NewHandler())
+	asset.RegisterHandler(skybox.NewHandler())
 
 	return a
 }

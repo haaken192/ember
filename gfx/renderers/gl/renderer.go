@@ -23,18 +23,71 @@ SOFTWARE.
 package gl
 
 import "github.com/haakenlabs/ember/gfx"
+import (
+	"github.com/go-gl/gl/v4.3-core/gl"
+	"github.com/go-gl/glfw/v3.2/glfw"
+	"github.com/sirupsen/logrus"
+)
 
 var _ gfx.Renderer = &Renderer{}
 
 type Renderer struct{}
 
-func (r *Renderer) Bind(gfx.Binder)       {}
-func (r *Renderer) Unbind(gfx.Binder)     {}
-func (r *Renderer) Draw(gfx.Drawer)       {}
-func (r *Renderer) Begin()                {}
-func (r *Renderer) End()                  {}
-func (r *Renderer) Alloc(gfx.Allocater)   {}
-func (r *Renderer) Dealloc(gfx.Allocater) {}
+func (r *Renderer) Bind(gfx.Binder) {
+
+}
+
+func (r *Renderer) Unbind(gfx.Binder) {
+
+}
+
+func (r *Renderer) Draw(gfx.Drawer) {
+
+}
+
+func (r *Renderer) Begin() {
+
+}
+
+func (r *Renderer) End() {
+
+}
+
+func (r *Renderer) Alloc(gfx.Allocater) {
+
+}
+
+func (r *Renderer) Dealloc(gfx.Allocater) {
+
+}
+
+func (r *Renderer) Init(window *glfw.Window) error {
+	glfw.WindowHint(glfw.ContextVersionMajor, 4)
+	glfw.WindowHint(glfw.ContextVersionMinor, 3)
+	glfw.WindowHint(glfw.OpenGLProfile, glfw.OpenGLCoreProfile)
+	glfw.WindowHint(glfw.OpenGLForwardCompatible, glfw.True)
+
+	window.MakeContextCurrent()
+
+	if err := gl.Init(); err != nil {
+		return err
+	}
+
+	logrus.Debug("[OpenGL] Version: ", gl.GoStr(gl.GetString(gl.VERSION)))
+
+	gl.Enable(gl.DEPTH_TEST)
+	gl.Enable(gl.TEXTURE_CUBE_MAP_SEAMLESS)
+	gl.DepthFunc(gl.LEQUAL)
+	gl.ClearColor(0.0, 0.0, 0.0, 1.0)
+
+	logrus.Debug("[OpenGL] Ready")
+
+	return nil
+}
+
+func (r *Renderer) Destroy() {
+
+}
 
 func NewRenderer() (*Renderer, error) {
 	r := &Renderer{}

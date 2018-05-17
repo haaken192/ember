@@ -22,21 +22,24 @@ SOFTWARE.
 
 package mock
 
-import "github.com/haakenlabs/ember/gfx"
+import (
+	"github.com/go-gl/glfw/v3.2/glfw"
+	"github.com/haakenlabs/ember/gfx"
+)
 
 var _ gfx.Renderer = &Renderer{}
 
 type Renderer struct{}
 
-func (r *Renderer) Bind(gfx.Binder)       {}
-func (r *Renderer) Unbind(gfx.Binder)     {}
-func (r *Renderer) Draw(gfx.Drawer)       {}
-func (r *Renderer) Begin()                {}
-func (r *Renderer) End()                  {}
-func (r *Renderer) Alloc(gfx.Allocater)   {}
-func (r *Renderer) Dealloc(gfx.Allocater) {}
-func (r *Renderer) Init() error           { return nil }
-func (r *Renderer) Destroy()              {}
+func (r *Renderer) Bind(gfx.Binder)         {}
+func (r *Renderer) Unbind(gfx.Binder)       {}
+func (r *Renderer) Draw(gfx.Drawer)         {}
+func (r *Renderer) Begin()                  {}
+func (r *Renderer) End()                    {}
+func (r *Renderer) Alloc(gfx.Allocater)     {}
+func (r *Renderer) Dealloc(gfx.Allocater)   {}
+func (r *Renderer) Init(*glfw.Window) error { return nil }
+func (r *Renderer) Destroy()                {}
 
 func NewRenderer() *Renderer {
 	return &Renderer{}

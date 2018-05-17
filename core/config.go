@@ -20,37 +20,43 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-package mock
+package core
 
 import (
-	"github.com/sirupsen/logrus"
+	"github.com/spf13/viper"
 
-	"github.com/haakenlabs/ember/gfx"
+	"github.com/haakenlabs/arc/pkg/math"
 )
 
-var _ gfx.Shader = &Shader{}
+const (
+	cfgFilename = "main.cfg"
+	cfgPrefix   = "ember"
+)
 
-type Shader struct{}
+// LoadGlobalConfig sets up viper and reads in the main configuration.
+func LoadGlobalConfig() error {
+	viper.AutomaticEnv()
+	viper.SetEnvPrefix(cfgPrefix)
+	viper.SetConfigFile(cfgFilename)
+	//viper.AddConfigPath(AppDir)
+	viper.SetConfigType("json")
 
-func (s *Shader) Bind() {}
+	err := viper.ReadInConfig()
+	if err != nil {
+		if _, ok := err.(viper.ConfigParseError); ok {
+			return err
+		}
+	}
 
-func (s *Shader) Unbind() {}
+	loadDefaultSettings()
 
-func (s *Shader) Reference() uint32 {
-	return 1
-}
-
-func (s *Shader) Alloc() error {
-	logrus.Info("alloc mock shader")
 	return nil
 }
 
-func (s *Shader) Dealloc() {}
-
-func (s *Shader) Deferred() bool {
-	return true
-}
-
-func (r *Renderer) MakeShader(bool) gfx.Shader {
-	return &Shader{}
+// loadDefaultSettings sets default settings.
+func loadDefaultSettings() {
+	// Graphics Options
+	viper.SetDefault("graphics.resolution", math.IVec2{1280, 720})
+	viper.SetDefault("graphics.mode", 0)
+	viper.SetDefault("graphics.vsync", true)
 }

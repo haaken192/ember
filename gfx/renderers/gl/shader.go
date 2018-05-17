@@ -294,7 +294,7 @@ func ShaderComponentToString(component gfx.ShaderComponent) string {
 	return "INVALID"
 }
 
-func MakeShader(deferred bool) *Shader {
+func (r *Renderer) MakeShader(deferred bool) gfx.Shader {
 	s := &Shader{
 		components: make(map[gfx.ShaderComponent]uint32),
 		deferred:   deferred,

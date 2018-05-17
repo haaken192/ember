@@ -28,9 +28,11 @@ import (
 	"path/filepath"
 	"sync"
 
-	"github.com/haakenlabs/arc/core"
+	"github.com/haakenlabs/arc/graphics"
 	"github.com/haakenlabs/arc/system/asset"
-	"github.com/haakenlabs/ember/graphics"
+	"github.com/haakenlabs/ember/core"
+	"github.com/haakenlabs/ember/gfx"
+	"github.com/haakenlabs/ember/system/renderer"
 )
 
 const (
@@ -66,7 +68,7 @@ func (h *Handler) Load(r *core.Resource) error {
 		return core.ErrAssetExists(name)
 	}
 
-	s := graphics.NewShader(m.Deferred)
+	s := renderer.MakeShader(m.Deferred)
 
 	s.SetName(m.Name)
 
@@ -86,7 +88,7 @@ func (h *Handler) Load(r *core.Resource) error {
 	return h.Add(name, s)
 }
 
-func (h *Handler) Add(name string, shader *graphics.Shader) error {
+func (h *Handler) Add(name string, shader *gfx.Shader) error {
 	if _, dup := h.Items[name]; dup {
 		return core.ErrAssetExists(name)
 	}
