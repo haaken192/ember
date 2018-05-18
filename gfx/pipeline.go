@@ -20,43 +20,18 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-package scene
+package gfx
 
-import (
-	"github.com/haakenlabs/ember/gfx"
-	"github.com/haakenlabs/ember/pkg/math"
-	"github.com/haakenlabs/ember/system/asset/shader"
-)
-
-type EnvLightingSource int
-
-const (
-	EnvLightingSkybox EnvLightingSource = iota
-	EnvLightingColor
-)
-
-type EnvironmentLighting struct {
-	Source    EnvLightingSource
-	Intensity float32
-	Ambient   math.Color
+type Pipeline interface {
+	AddStage(...Stage)
+	EnableStage(string)
+	DisableStage(string)
+	Process(Camera)
 }
 
-type Environment struct {
-	DeferredShader gfx.Shader
-	Skybox         *Skybox
-	SunSource      *Light
-}
-
-func NewEnvironment() *Environment {
-	e := &Environment{}
-
-	e.DeferredShader = shader.DefaultShader()
-	e.Skybox = DefaultSkybox()
-
-	return e
-}
-
-func DefaultSkybox() *Skybox {
-	//return GetAsset().MustGet(AssetNameSkybox, "default").(*Skybox)
-	return nil
+type Stage interface {
+	Process()
+	Name() string
+	SetEnabled(bool)
+	Enabled() bool
 }

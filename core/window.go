@@ -31,6 +31,7 @@ import (
 	"github.com/spf13/viper"
 
 	"github.com/haakenlabs/ember/gfx"
+	"github.com/haakenlabs/ember/pkg/cast"
 	"github.com/haakenlabs/ember/pkg/math"
 )
 
@@ -120,7 +121,7 @@ func (w *WindowSystem) Setup() (err error) {
 	glfw.WindowHint(glfw.OpenGLForwardCompatible, glfw.True)
 
 	w.displayMode = DisplayMode(viper.GetInt("graphics.mode"))
-	w.resolution = math.ToIVec2(viper.Get("graphics.resolution"))
+	w.resolution = cast.ToIVec2(viper.Get("graphics.resolution"))
 	w.vsync = viper.GetBool("graphics.vsync")
 
 	resX := int(w.resolution.X())

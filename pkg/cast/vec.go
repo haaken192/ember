@@ -26,8 +26,14 @@ import (
 	"strconv"
 	"strings"
 
+	"fmt"
+	"reflect"
+
 	"github.com/go-gl/mathgl/mgl32"
 	"github.com/juju/errors"
+	"github.com/spf13/cast"
+
+	"github.com/haakenlabs/ember/pkg/math"
 )
 
 func ParseFloat32Slice(str string, sep string, length int) ([]float32, error) {
@@ -115,4 +121,86 @@ func ParseVec4(str string) (mgl32.Vec4, error) {
 	}
 
 	return mgl32.Vec4{v[0], v[1], v[2], v[3]}, nil
+}
+
+func ToVec2(i interface{}) mgl32.Vec2 {
+	v, _ := ToVec2E(i)
+
+	return v
+}
+
+func ToIVec2(i interface{}) math.IVec2 {
+	v, e := ToIVec2E(i)
+
+	if e != nil {
+		panic(e)
+	}
+
+	return v
+}
+
+func ToVec2E(i interface{}) (mgl32.Vec2, error) {
+	if i == nil {
+		return mgl32.Vec2{}, fmt.Errorf("unable to cast %#v to mgl32.Vec2", i)
+	}
+
+	switch v := i.(type) {
+	case mgl32.Vec2:
+		return v, nil
+	}
+
+	kind := reflect.TypeOf(i).Kind()
+	switch kind {
+	case reflect.Slice, reflect.Array:
+		s := reflect.ValueOf(i)
+		if s.Len() != 2 {
+			return mgl32.Vec2{}, fmt.Errorf("unable to cast %#v to mgl32.Vec2", i)
+		}
+		a := mgl32.Vec2{}
+		for j := 0; j < s.Len(); j++ {
+			val, err := cast.ToIntE(s.Index(j).Interface())
+			if err != nil {
+				return mgl32.Vec2{}, fmt.Errorf("unable to cast %#v to mgl32.Vec2", i)
+			}
+			a[j] = float32(val)
+		}
+
+		return a, nil
+
+	default:
+		return mgl32.Vec2{}, fmt.Errorf("unable to cast %#v to mgl32.Vec2", i)
+	}
+}
+
+func ToIVec2E(i interface{}) (math.IVec2, error) {
+	if i == nil {
+		return math.IVec2{}, fmt.Errorf("unable to cast %#v to IVec2", i)
+	}
+
+	switch v := i.(type) {
+	case math.IVec2:
+		return v, nil
+	}
+
+	kind := reflect.TypeOf(i).Kind()
+	switch kind {
+	case reflect.Slice, reflect.Array:
+		s := reflect.ValueOf(i)
+		if s.Len() != 2 {
+			return math.IVec2{}, fmt.Errorf("unable to cast %#v to IVec2", i)
+		}
+		a := math.IVec2{}
+		for j := 0; j < s.Len(); j++ {
+			val, err := cast.ToIntE(s.Index(j).Interface())
+			if err != nil {
+				return math.IVec2{}, fmt.Errorf("unable to cast %#v to IVec2", i)
+			}
+			a[j] = int32(val)
+		}
+
+		return a, nil
+
+	default:
+		return math.IVec2{}, fmt.Errorf("unable to cast %#v to IVec2", i)
+	}
 }

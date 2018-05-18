@@ -74,7 +74,7 @@ type Shader interface {
 	// Compile compiles and links the shader code data for this shader.
 	Compile() error
 
-	SetSubroutinue(ShaderComponent, string)
+	SetSubroutine(ShaderComponent, string)
 
 	SetUniform(string, interface{})
 }

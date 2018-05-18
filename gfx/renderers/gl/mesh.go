@@ -23,13 +23,14 @@ SOFTWARE.
 package gl
 
 import (
+	"fmt"
+
 	"github.com/go-gl/gl/v4.3-core/gl"
 	"github.com/go-gl/mathgl/mgl32"
 
-	"fmt"
-
 	"github.com/haakenlabs/ember/core"
 	"github.com/haakenlabs/ember/gfx"
+	"github.com/haakenlabs/ember/system/instance"
 )
 
 var _ gfx.Mesh = &Mesh{}
@@ -166,4 +167,17 @@ func (m *Mesh) SetUVs(uvs []mgl32.Vec2) {
 
 func (m *Mesh) SetReversedWinding(reverse bool) {
 	m.reverseWinding = reverse
+}
+
+func NewMesh() *Mesh {
+	m := &Mesh{}
+
+	m.SetName("Mesh")
+	instance.MustAssign(m)
+
+	return m
+}
+
+func (r *Renderer) MakeMesh() gfx.Mesh {
+	return NewMesh()
 }

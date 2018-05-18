@@ -20,43 +20,61 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-package scene
+package gl
 
-import (
-	"github.com/haakenlabs/ember/gfx"
-	"github.com/haakenlabs/ember/pkg/math"
-	"github.com/haakenlabs/ember/system/asset/shader"
-)
+import "github.com/haakenlabs/ember/gfx"
 
-type EnvLightingSource int
+var _ gfx.Pipeline = &PipelineDeferred{}
+var _ gfx.Pipeline = &PipelineForward{}
 
-const (
-	EnvLightingSkybox EnvLightingSource = iota
-	EnvLightingColor
-)
-
-type EnvironmentLighting struct {
-	Source    EnvLightingSource
-	Intensity float32
-	Ambient   math.Color
+type BasePipeline struct {
+	stages []gfx.Stage
 }
 
-type Environment struct {
-	DeferredShader gfx.Shader
-	Skybox         *Skybox
-	SunSource      *Light
+type PipelineDeferred struct {
+	BasePipeline
 }
 
-func NewEnvironment() *Environment {
-	e := &Environment{}
-
-	e.DeferredShader = shader.DefaultShader()
-	e.Skybox = DefaultSkybox()
-
-	return e
+type PipelineForward struct {
+	BasePipeline
 }
 
-func DefaultSkybox() *Skybox {
-	//return GetAsset().MustGet(AssetNameSkybox, "default").(*Skybox)
-	return nil
+func (p *BasePipeline) AddStage(stages ...gfx.Stage) {
+	for _, v := range stages {
+		for _, x := range p.stages {
+			if v.Name() == x.Name() {
+				continue
+			}
+
+			p.stages = append(p.stages, v)
+		}
+	}
+}
+
+func (p *BasePipeline) EnableStage(name string) {
+	for _, v := range p.stages {
+		if v.Name() == name {
+			v.SetEnabled(true)
+		}
+	}
+}
+
+func (p *BasePipeline) DisableStage(name string) {
+	for _, v := range p.stages {
+		if v.Name() == name {
+			v.SetEnabled(false)
+		}
+	}
+}
+
+func (p *PipelineDeferred) Process(camera gfx.Camera) {
+	if camera == nil {
+		return
+	}
+}
+
+func (p *PipelineForward) Process(camera gfx.Camera) {
+	if camera == nil {
+		return
+	}
 }

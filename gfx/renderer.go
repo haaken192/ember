@@ -24,6 +24,7 @@ package gfx
 
 import (
 	"github.com/go-gl/glfw/v3.2/glfw"
+
 	"github.com/haakenlabs/ember/pkg/math"
 )
 
@@ -106,4 +107,5 @@ type Factory interface {
 	MakeFramebuffer(math.IVec2) Framebuffer
 	MakeGBuffer(math.IVec2, Attachment, bool) GBuffer
 	MakeMesh() Mesh
+	MakeCamera() Camera
 }

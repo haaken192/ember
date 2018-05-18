@@ -20,43 +20,52 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-package scene
+package gl
 
-import (
-	"github.com/haakenlabs/ember/gfx"
-	"github.com/haakenlabs/ember/pkg/math"
-	"github.com/haakenlabs/ember/system/asset/shader"
-)
+import "github.com/haakenlabs/ember/gfx"
 
-type EnvLightingSource int
+var _ gfx.Stage = &StageEffects{}
+var _ gfx.Stage = &StageForward{}
+var _ gfx.Stage = &StageGBufferGeom{}
+var _ gfx.Stage = &StageGBufferLight{}
+var _ gfx.Stage = &StageGUI{}
 
-const (
-	EnvLightingSkybox EnvLightingSource = iota
-	EnvLightingColor
-)
-
-type EnvironmentLighting struct {
-	Source    EnvLightingSource
-	Intensity float32
-	Ambient   math.Color
+type BaseStage struct {
+	enabled bool
 }
 
-type Environment struct {
-	DeferredShader gfx.Shader
-	Skybox         *Skybox
-	SunSource      *Light
+type StageGBufferGeom struct {
+	BaseStage
 }
 
-func NewEnvironment() *Environment {
-	e := &Environment{}
-
-	e.DeferredShader = shader.DefaultShader()
-	e.Skybox = DefaultSkybox()
-
-	return e
+type StageGBufferLight struct {
+	BaseStage
 }
 
-func DefaultSkybox() *Skybox {
-	//return GetAsset().MustGet(AssetNameSkybox, "default").(*Skybox)
-	return nil
+type StageEffects struct {
+	BaseStage
+}
+
+type StageForward struct {
+	BaseStage
+}
+
+type StageGUI struct {
+	BaseStage
+}
+
+func (s *BaseStage) SetEnabled(enabled bool) {
+	s.enabled = enabled
+}
+
+func (s *BaseStage) Enabled() bool {
+	return s.enabled
+}
+
+func (s *StageEffects) Process() {
+
+}
+
+func (s *StageEffects) Name() string {
+	return "StageEffects"
 }

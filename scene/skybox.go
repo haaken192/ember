@@ -20,80 +20,53 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-package mock
+package scene
 
 import (
-	"github.com/go-gl/mathgl/mgl32"
+	"github.com/haakenlabs/ember/core"
 	"github.com/haakenlabs/ember/gfx"
-	"github.com/sirupsen/logrus"
+	"github.com/haakenlabs/ember/system/instance"
 )
 
-var _ gfx.Mesh = &Mesh{}
+type Skybox struct {
+	core.BaseObject
 
-type Mesh struct{}
-
-func (m *Mesh) Bind() {}
-
-func (m *Mesh) Unbind() {}
-
-func (m *Mesh) Reference() uint32 {
-	return 1
+	radiance   gfx.Texture
+	specular   gfx.Texture
+	irradiance gfx.Texture
 }
 
-func (m *Mesh) Alloc() error {
-	logrus.Info("alloc mock mesh")
-	return nil
+func NewSkybox(radiance, specular, irradiance gfx.Texture) *Skybox {
+	if radiance.Type() != gfx.TextureCubemap {
+		return nil
+	}
+	if specular.Type() != gfx.TextureCubemap {
+		return nil
+	}
+	if irradiance.Type() != gfx.TextureCubemap {
+		return nil
+	}
+
+	s := &Skybox{
+		radiance:   radiance,
+		specular:   specular,
+		irradiance: irradiance,
+	}
+
+	s.SetName("Skybox")
+	instance.MustAssign(s)
+
+	return s
 }
 
-func (m *Mesh) Dealloc() {}
-
-func (m *Mesh) ID() int32 {
-	return 1
+func (s *Skybox) Radiance() gfx.Texture {
+	return s.radiance
 }
 
-func (m *Mesh) Deferred() bool {
-	return true
+func (s *Skybox) Specular() gfx.Texture {
+	return s.specular
 }
 
-func (m *Mesh) Draw() {}
-
-func (m *Mesh) Clear() {}
-
-func (m *Mesh) Upload() error {
-	return nil
-}
-
-func (m *Mesh) Vertices() []mgl32.Vec3 {
-	return nil
-}
-
-func (m *Mesh) Normals() []mgl32.Vec3 {
-	return nil
-}
-
-func (m *Mesh) UVs() []mgl32.Vec2 {
-	return nil
-}
-
-func (m *Mesh) Triangles() []uint32 {
-	return nil
-}
-
-func (m *Mesh) Indexed() bool {
-	return false
-}
-func (m *Mesh) ReversedWinding() bool {
-	return false
-}
-
-func (m *Mesh) SetVertices(vertices []mgl32.Vec3) {}
-
-func (m *Mesh) SetNormals(normals []mgl32.Vec3) {}
-
-func (m *Mesh) SetUVs(uvs []mgl32.Vec2) {}
-
-func (m *Mesh) SetReversedWinding(reverse bool) {}
-
-func (r *Renderer) MakeMesh() gfx.Mesh {
-	return &Mesh{}
+func (s *Skybox) Irradiance() gfx.Texture {
+	return s.irradiance
 }

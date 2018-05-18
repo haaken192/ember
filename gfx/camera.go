@@ -22,50 +22,21 @@ SOFTWARE.
 
 package gfx
 
-import (
-	"github.com/haakenlabs/ember/core"
-	"github.com/haakenlabs/ember/system/instance"
-)
+import "github.com/go-gl/mathgl/mgl32"
 
-type Skybox struct {
-	core.BaseObject
-
-	radiance   Texture
-	specular   Texture
-	irradiance Texture
-}
-
-func NewSkybox(radiance, specular, irradiance Texture) *Skybox {
-	if radiance.Type() != TextureCubemap {
-		return nil
-	}
-	if specular.Type() != TextureCubemap {
-		return nil
-	}
-	if irradiance.Type() != TextureCubemap {
-		return nil
-	}
-
-	s := &Skybox{
-		radiance:   radiance,
-		specular:   specular,
-		irradiance: irradiance,
-	}
-
-	s.SetName("Skybox")
-	instance.MustAssign(s)
-
-	return s
-}
-
-func (s *Skybox) Radiance() Texture {
-	return s.radiance
-}
-
-func (s *Skybox) Specular() Texture {
-	return s.specular
-}
-
-func (s *Skybox) Irradiance() Texture {
-	return s.irradiance
+type Camera interface {
+	Render()
+	ProjectionMatrix() mgl32.Mat4
+	ViewMatrix() mgl32.Mat4
+	NormalMatrix() mgl32.Mat3
+	UpdateMatrices()
+	FOV() float32
+	SetFOV(float32)
+	Position() mgl32.Vec3
+	Look() mgl32.Quat
+	LookDirection() mgl32.Vec3
+	FarClip() float32
+	NearClip() float32
+	SetFarClip(float32)
+	SetNearClip(float32)
 }

@@ -134,6 +134,10 @@ func (t *Texture) SetHDRData([]float32) {}
 
 func (t *Texture) SetHDRLayerData([]float32, int32) {}
 
+func (t *Texture) Format() gfx.TextureFormat {
+	return gfx.TextureFormatDefaultColor
+}
+
 func (r *Renderer) MakeTexture(cfg *gfx.TextureConfig) gfx.Texture {
 	return &Texture{
 		size:        cfg.Size,

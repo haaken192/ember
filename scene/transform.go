@@ -148,5 +148,5 @@ func NewTransform() *BaseTransform {
 }
 
 func UnmarshalTransform(data []byte) (Component, error) {
-	var t
+	return nil, nil
 }

@@ -59,7 +59,7 @@ func (s *Shader) Compile() error {
 	return nil
 }
 
-func (s *Shader) SetSubroutinue(gfx.ShaderComponent, string) {}
+func (s *Shader) SetSubroutine(gfx.ShaderComponent, string) {}
 
 func (s *Shader) SetUniform(string, interface{}) {}
 

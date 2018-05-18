@@ -20,7 +20,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-package gfx
+package scene
 
 import (
 	"image"
@@ -37,6 +37,7 @@ import (
 	"golang.org/x/image/math/fixed"
 
 	"github.com/haakenlabs/ember/core"
+	"github.com/haakenlabs/ember/gfx"
 	"github.com/haakenlabs/ember/system/instance"
 
 	emath "github.com/haakenlabs/ember/pkg/math"
@@ -59,7 +60,7 @@ type Glyph struct {
 
 type Atlas struct {
 	face       font.Face
-	texture    Texture
+	texture    gfx.Texture
 	mapping    map[rune]Glyph
 	ascent     float64
 	descent    float64
@@ -173,8 +174,8 @@ func (f *Font) generateAtlas(size float64) *Atlas {
 	}
 
 	atlas.texture = core.GetWindowSystem().Renderer().MakeTexture(
-		&TextureConfig{
-			Type: TextureFont,
+		&gfx.TextureConfig{
+			Type: gfx.TextureFont,
 			Size: emath.IVec2{
 				int32(atlasImg.Bounds().Dx()),
 				int32(atlasImg.Bounds().Dy())},
@@ -194,7 +195,7 @@ func (f *Font) HasSize(size float64) bool {
 	return ok
 }
 
-func (f *Font) DrawText(text string, size float64) ([]Vertex, mgl32.Vec2) {
+func (f *Font) DrawText(text string, size float64) ([]gfx.Vertex, mgl32.Vec2) {
 	var atlas *Atlas
 	var dot mgl64.Vec2
 	var prev rune
@@ -215,7 +216,7 @@ func (f *Font) DrawText(text string, size float64) ([]Vertex, mgl32.Vec2) {
 		return nil, mgl32.Vec2{}
 	}
 
-	verts := make([]Vertex, 6*len(text))
+	verts := make([]gfx.Vertex, 6*len(text))
 	tw := float32(atlas.Texture().Size().X())
 	th := float32(atlas.Texture().Size().Y())
 
@@ -225,19 +226,19 @@ func (f *Font) DrawText(text string, size float64) ([]Vertex, mgl32.Vec2) {
 
 		prev = r
 
-		ul := Vertex{
+		ul := gfx.Vertex{
 			V: mgl32.Vec3{float32(rect.Min.X()), float32(rect.Min.Y()), 0},
 			U: mgl32.Vec2{float32(frame.Min.X()) / tw, float32(frame.Min.Y()) / th},
 		}
-		ur := Vertex{
+		ur := gfx.Vertex{
 			V: mgl32.Vec3{float32(rect.Max.X()), float32(rect.Min.Y()), 0},
 			U: mgl32.Vec2{float32(frame.Max.X()) / tw, float32(frame.Min.Y()) / th},
 		}
-		lr := Vertex{
+		lr := gfx.Vertex{
 			V: mgl32.Vec3{float32(rect.Max.X()), float32(rect.Max.Y()), 0},
 			U: mgl32.Vec2{float32(frame.Max.X()) / tw, float32(frame.Max.Y()) / th},
 		}
-		ll := Vertex{
+		ll := gfx.Vertex{
 			V: mgl32.Vec3{float32(rect.Min.X()), float32(rect.Max.Y()), 0},
 			U: mgl32.Vec2{float32(frame.Min.X()) / tw, float32(frame.Max.Y()) / th},
 		}
@@ -263,7 +264,7 @@ func (f *Font) DrawText(text string, size float64) ([]Vertex, mgl32.Vec2) {
 		float32(math.Ceil(boundings.H()))}
 }
 
-func (a *Atlas) Texture() Texture {
+func (a *Atlas) Texture() gfx.Texture {
 	return a.texture
 }
 

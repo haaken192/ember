@@ -39,13 +39,13 @@ import (
 	"github.com/haakenlabs/ember/gfx"
 	"github.com/haakenlabs/ember/pkg/image/hdr"
 	"github.com/haakenlabs/ember/pkg/math"
+	"github.com/haakenlabs/ember/scene"
 	"github.com/haakenlabs/ember/system/asset"
 	"github.com/haakenlabs/ember/system/asset/shader"
+	"github.com/haakenlabs/ember/system/renderer"
 
 	_ "image/jpeg"
 	_ "image/png"
-
-	"github.com/haakenlabs/ember/system/renderer"
 )
 
 const (
@@ -110,7 +110,7 @@ func (h *Handler) Load(r *core.Resource) error {
 	return nil
 }
 
-func (h *Handler) loadMap(m *Metadata, dir string) (skybox *gfx.Skybox, err error) {
+func (h *Handler) loadMap(m *Metadata, dir string) (skybox *scene.Skybox, err error) {
 	var specR, irrdR *core.Resource
 	var specTex, irrdTex gfx.Texture
 	var radiance, specular, irradiance gfx.Texture
@@ -192,19 +192,19 @@ func (h *Handler) loadMap(m *Metadata, dir string) (skybox *gfx.Skybox, err erro
 		return nil, err
 	}
 
-	skybox = gfx.NewSkybox(radiance, specular, irradiance)
+	skybox = scene.NewSkybox(radiance, specular, irradiance)
 
 	return skybox, nil
 }
 
 // Get gets an asset by name.
-func (h *Handler) Get(name string) (*gfx.Skybox, error) {
+func (h *Handler) Get(name string) (*scene.Skybox, error) {
 	a, err := h.GetAsset(name)
 	if err != nil {
 		return nil, err
 	}
 
-	a2, ok := a.(*gfx.Skybox)
+	a2, ok := a.(*scene.Skybox)
 	if !ok {
 		return nil, core.ErrAssetType(name)
 	}
@@ -213,7 +213,7 @@ func (h *Handler) Get(name string) (*gfx.Skybox, error) {
 }
 
 // MustGet is like GetAsset, but panics if an error occurs.
-func (h *Handler) MustGet(name string) *gfx.Skybox {
+func (h *Handler) MustGet(name string) *scene.Skybox {
 	a, err := h.Get(name)
 	if err != nil {
 		panic(err)
@@ -354,11 +354,11 @@ func generateIrradiance(radiance gfx.Texture, fbo gfx.Framebuffer) (irrd gfx.Tex
 	return nil, nil
 }
 
-func Get(name string) (*gfx.Skybox, error) {
+func Get(name string) (*scene.Skybox, error) {
 	return mustHandler().Get(name)
 }
 
-func MustGet(name string) *gfx.Skybox {
+func MustGet(name string) *scene.Skybox {
 	return mustHandler().MustGet(name)
 }
 
